@@ -1,0 +1,1 @@
+ALTER TABLE usage_metrics ADD COLUMN IF NOT EXISTS desk_count INTEGER DEFAULT 0;
