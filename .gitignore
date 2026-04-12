@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment / secrets — NEVER commit these
+.env
+.env.*
+!.env.example
+
+# Supabase local runtime
+supabase/.temp
