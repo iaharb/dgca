@@ -54,9 +54,9 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] relative flex items-center justify-center overflow-hidden font-sans">
-      {/* Background Ambience */}
-      <div className="absolute inset-0 z-0">
+    <div className="min-h-screen bg-[#020617] relative font-sans overflow-y-auto">
+      {/* Background Ambience — fixed so it doesn't scroll with content */}
+      <div className="fixed inset-0 z-0">
         <img 
           src="/kwi_bg.png" 
           className="w-full h-full object-cover opacity-30 grayscale-[0.5] scale-110" 
@@ -65,11 +65,13 @@ export const Login: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(12,142,233,0.1),transparent_70%)]" />
       </div>
+      {/* Scrollable content wrapper */}
+      <div className="relative z-10 flex flex-col items-center justify-start min-h-screen py-10 px-4">
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 w-full max-w-[480px] p-8"
+        className="w-full max-w-[480px] p-8"
       >
         <div className="text-center mb-12">
           <motion.div 
@@ -266,6 +268,7 @@ export const Login: React.FC = () => {
            <p>© 2026 DGCA Kuwait</p>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 };
