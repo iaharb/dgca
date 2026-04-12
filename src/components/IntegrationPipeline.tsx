@@ -120,13 +120,16 @@ export const IntegrationPipeline: React.FC<any> = ({ onSelectProject, userType, 
       {/* Stage Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {STAGES.map((stage) => {
-          const stageIdx       = STAGES.findIndex(s => s.id === stage.id);
-          const carriersHere     = projects.filter(p => p.currentPhase === stage.id);
-          // >= stageIdx: carriers AT this stage have reached/completed it
-          const carriersAtOrPast = projects.filter(p => p.currentPhaseIdx >= stageIdx);
-          const count          = carriersHere.length;
-          const completedCount = carriersAtOrPast.length;
-          const pct            = totalCarriers > 0 ? Math.round((completedCount / totalCarriers) * 100) : 0;
+          const stageIdx     = STAGES.findIndex(s => s.id === stage.id);
+          const isLastStage  = stageIdx === STAGES.length - 1;
+          const carriersHere = projects.filter(p => p.currentPhase === stage.id);
+          const count        = carriersHere.length;
+
+          // "Cleared" = moved PAST this stage (or arrived at final stage)
+          const clearedCount = isLastStage
+            ? carriersHere.length
+            : projects.filter(p => p.currentPhaseIdx > stageIdx).length;
+          const pct          = totalCarriers > 0 ? Math.round((clearedCount / totalCarriers) * 100) : 0;
 
           // Show signed badge if any carrier is AT this stage and it's "Agreement Signed"
           const hasSignedCarrier = stage.milestone === 'agreement_signed' && count > 0;
@@ -173,8 +176,8 @@ export const IntegrationPipeline: React.FC<any> = ({ onSelectProject, userType, 
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-tighter text-slate-400">
-                  <span>Carriers Past Stage</span>
-                  <span className="text-slate-900">{completedCount} / {totalCarriers}</span>
+                  <span>{isLastStage ? 'Certified' : 'Fleet Cleared Stage'}</span>
+                  <span className="text-slate-900">{clearedCount} / {totalCarriers}</span>
                 </div>
                 <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                   <motion.div
@@ -185,7 +188,9 @@ export const IntegrationPipeline: React.FC<any> = ({ onSelectProject, userType, 
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className={`text-[10px] font-black ${stage.color}`}>{pct}% past stage</span>
+                  <span className={`text-[10px] font-black ${stage.color}`}>
+                    {pct}% {isLastStage ? 'certified' : 'cleared'}
+                  </span>
                   <span className="text-[9px] text-slate-300 font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
                     Click to manage →
                   </span>
