@@ -10,6 +10,8 @@ import { DossierDrawer } from './components/DossierDrawer';
 import { AODBControlCenter } from './components/AODBControlCenter';
 import { Login } from './components/Login';
 import { UserManual } from './components/UserManual';
+import { InvoicingView } from './components/InvoicingView';
+import { PaymentsView } from './components/PaymentsView';
 import { seedDemoData } from './utils/seed-demo-data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -28,7 +30,9 @@ import {
   LogOut,
   RefreshCw,
   ShieldCheck,
-  BookOpen
+  BookOpen,
+  Receipt,
+  Banknote
 } from 'lucide-react';
 
 import { supabase } from './lib/supabase';
@@ -81,12 +85,14 @@ function App() {
   };
 
   const menuItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Pipeline Board', roles: ['dgca', 'carrier', 'operations_partner'] },
-    { id: 'financial', icon: BarChart3, label: 'Financial Health', roles: ['dgca', 'carrier', 'operations_partner'] },
-    { id: 'airlines', icon: Users, label: 'Directory', roles: ['dgca', 'operations_partner'] },
-    { id: 'agreements', icon: FileText, label: 'Ledger', roles: ['dgca', 'carrier', 'operations_partner'] },
-    { id: 'simulation', icon: Radio, label: 'Simulator', roles: ['dgca', 'operations_partner'] },
-    { id: 'manual', icon: BookOpen, label: 'User Manual', roles: ['dgca', 'carrier', 'operations_partner'] },
+    { id: 'dashboard',  icon: LayoutDashboard, label: 'Pipeline Board',  roles: ['dgca', 'carrier', 'operations_partner'] },
+    { id: 'financial',  icon: BarChart3,        label: 'Financial Health', roles: ['dgca', 'carrier', 'operations_partner'] },
+    { id: 'airlines',   icon: Users,            label: 'Directory',        roles: ['dgca', 'operations_partner'] },
+    { id: 'agreements', icon: FileText,          label: 'Ledger',           roles: ['dgca', 'carrier', 'operations_partner'] },
+    { id: 'invoicing',  icon: Receipt,           label: 'Invoicing',        roles: ['dgca', 'carrier', 'operations_partner'] },
+    { id: 'payments',   icon: Banknote,          label: 'Payments',         roles: ['dgca', 'operations_partner'] },
+    { id: 'simulation', icon: Radio,             label: 'Simulator',        roles: ['dgca', 'operations_partner'] },
+    { id: 'manual',     icon: BookOpen,          label: 'User Manual',      roles: ['dgca', 'carrier', 'operations_partner'] },
   ].filter(item => item.roles.includes(profile?.role || ''));
 
   const handleLogout = async () => {
@@ -249,11 +255,13 @@ function App() {
                     </div>
                  </div>
                )}
-               {activeTab === 'financial' && <FinancialMap userType={profile?.role} airlineCode={profile?.airline_code} />}
-               {activeTab === 'airlines' && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <AirlinesView />}
+               {activeTab === 'financial'  && <FinancialMap   userType={profile?.role} airlineCode={profile?.airline_code} />}
+               {activeTab === 'airlines'   && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <AirlinesView />}
                {activeTab === 'agreements' && <AgreementsView userType={profile?.role} airlineCode={profile?.airline_code} />}
+               {activeTab === 'invoicing'  && <InvoicingView  userType={profile?.role} airlineCode={profile?.airline_code} />}
+               {activeTab === 'payments'   && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <PaymentsView userType={profile?.role} airlineCode={profile?.airline_code} />}
                {activeTab === 'simulation' && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <AODBControlCenter />}
-                {activeTab === 'manual' && <UserManual userType={profile?.role} />}
+               {activeTab === 'manual'     && <UserManual userType={profile?.role} />}
              </motion.div>
            </AnimatePresence>
         </div>
