@@ -38,10 +38,17 @@ import {
 import { supabase } from './lib/supabase';
 
 function App() {
+  // ── Hash-based routing helpers ────────────────────────────────────────────
+  const VALID_TABS = ['dashboard','financial','airlines','agreements','invoicing','payments','simulation','manual'];
+  const hashToTab = () => {
+    const h = window.location.hash.replace('#', '');
+    return VALID_TABS.includes(h) ? h : 'dashboard';
+  };
+
   const [isInitiated, setIsInitiated] = useState<boolean | null>(null);
   const [profile, setProfile] = useState<any | null>(null);
   const [session, setSession] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(hashToTab);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -54,6 +61,10 @@ function App() {
     };
     initApp();
 
+    // Sync hash ↔ tab state (handles browser back/forward)
+    const onHashChange = () => setActiveTab(hashToTab());
+    window.addEventListener('hashchange', onHashChange);
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       hydrateUser(session?.user);
@@ -64,7 +75,10 @@ function App() {
       hydrateUser(session?.user);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('hashchange', onHashChange);
+    };
   }, []);
 
   const hydrateUser = async (user: any) => {
@@ -84,6 +98,12 @@ function App() {
     setIsInitiated(true);
   };
 
+  // Navigate: update both React state AND the URL hash
+  const navigateTo = (tab: string) => {
+    window.location.hash = tab;
+    setActiveTab(tab);
+  };
+
   const menuItems = [
     { id: 'dashboard',  icon: LayoutDashboard, label: 'Pipeline Board',  roles: ['dgca', 'carrier', 'operations_partner'] },
     { id: 'financial',  icon: BarChart3,        label: 'Financial Health', roles: ['dgca', 'carrier', 'operations_partner'] },
@@ -94,6 +114,12 @@ function App() {
     { id: 'simulation', icon: Radio,             label: 'Simulator',        roles: ['dgca', 'operations_partner'] },
     { id: 'manual',     icon: BookOpen,          label: 'User Manual',      roles: ['dgca', 'carrier', 'operations_partner'] },
   ].filter(item => item.roles.includes(profile?.role || ''));
+
+  // Sync browser tab title with active page
+  useEffect(() => {
+    const label = menuItems.find(m => m.id === activeTab)?.label || 'KWI Portal';
+    document.title = `${label} — KWI Aviation Partner Portal`;
+  }, [activeTab]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -138,7 +164,7 @@ function App() {
 
   return (
     <div className="flex h-screen w-screen bg-slate-50 text-slate-900 overflow-hidden select-none">
-      <CarrierOnboardingModal isOpen={isOnboardingOpen} onClose={() => setIsOnboardingOpen(false)} onSuccess={() => setActiveTab('airlines')} />
+      <CarrierOnboardingModal isOpen={isOnboardingOpen} onClose={() => setIsOnboardingOpen(false)} onSuccess={() => navigateTo('airlines')} />
       <DossierDrawer project={selectedProject} isOpen={!!selectedProject} onClose={() => setSelectedProject(null)} />
 
       {/* Sidebar */}
@@ -157,7 +183,7 @@ function App() {
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => navigateTo(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                 activeTab === item.id 
                   ? 'bg-blue-50 text-blue-600 border border-blue-100 shadow-sm' 
@@ -239,7 +265,9 @@ function App() {
                  <ChevronRight className="w-3 h-3 text-slate-300" />
                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Network</span>
               </div>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight font-display">{activeTab === 'dashboard' ? 'Network Integration Board' : activeTab.toUpperCase()}</h2>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight font-display">
+                {menuItems.find(m => m.id === activeTab)?.label || 'Network Integration Board'}
+              </h2>
            </div>
 
            <AnimatePresence mode="wait">
