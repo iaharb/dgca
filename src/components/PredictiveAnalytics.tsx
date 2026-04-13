@@ -89,7 +89,8 @@ export const PredictiveAnalytics: React.FC<{ userType?: string }> = ({ userType 
     }
   };
 
-  // 4. Calculate Heatmap from Real Data
+  const themeColor = selectedCloud === 'gcp' ? '#2563eb' : '#f97316';
+
   const heatmapData = useMemo(() => {
     const HOURS = ['00:00', '08:00', '16:00', '23:00'];
     return gateMap.map(gate => ({
