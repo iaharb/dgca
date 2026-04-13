@@ -14,6 +14,7 @@ import { InvoicingView } from './components/InvoicingView';
 import { PaymentsView } from './components/PaymentsView';
 import { PredictiveAnalytics } from './components/PredictiveAnalytics';
 import { seedDemoData } from './utils/seed-demo-data';
+import { seedOperationalData } from './utils/seed-operational-data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, 
@@ -135,6 +136,7 @@ function App() {
   const performSync = async () => {
     setIsSyncing(true);
     await seedDemoData();
+    await seedOperationalData();
     setRefreshKey(k => k + 1); // Forces all dashboard components to remount & refetch
     setIsSyncing(false);
   };
