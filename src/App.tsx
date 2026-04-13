@@ -12,6 +12,7 @@ import { Login } from './components/Login';
 import { UserManual } from './components/UserManual';
 import { InvoicingView } from './components/InvoicingView';
 import { PaymentsView } from './components/PaymentsView';
+import { PredictiveAnalytics } from './components/PredictiveAnalytics';
 import { seedDemoData } from './utils/seed-demo-data';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -32,14 +33,15 @@ import {
   ShieldCheck,
   BookOpen,
   Receipt,
-  Banknote
+  Banknote,
+  Sparkles
 } from 'lucide-react';
 
 import { supabase } from './lib/supabase';
 
 function App() {
   // ── Hash-based routing helpers ────────────────────────────────────────────
-  const VALID_TABS = ['dashboard','financial','airlines','agreements','invoicing','payments','simulation','manual'];
+  const VALID_TABS = ['dashboard','financial','airlines','agreements','invoicing','payments','simulation','analytics','manual'];
   const hashToTab = () => {
     const h = window.location.hash.replace('#', '');
     return VALID_TABS.includes(h) ? h : 'dashboard';
@@ -112,6 +114,7 @@ function App() {
     { id: 'invoicing',  icon: Receipt,           label: 'Invoicing',        roles: ['dgca', 'carrier', 'operations_partner'] },
     { id: 'payments',   icon: Banknote,          label: 'Payments',         roles: ['dgca', 'operations_partner'] },
     { id: 'simulation', icon: Radio,             label: 'Simulator',        roles: ['dgca', 'operations_partner'] },
+    { id: 'analytics',  icon: Sparkles,          label: 'Predictive RMS',   roles: ['dgca', 'operations_partner'] },
     { id: 'manual',     icon: BookOpen,          label: 'User Manual',      roles: ['dgca', 'carrier', 'operations_partner'] },
   ].filter(item => item.roles.includes(profile?.role || ''));
 
@@ -289,6 +292,7 @@ function App() {
                {activeTab === 'invoicing'  && <InvoicingView  userType={profile?.role} airlineCode={profile?.airline_code} />}
                {activeTab === 'payments'   && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <PaymentsView userType={profile?.role} airlineCode={profile?.airline_code} />}
                {activeTab === 'simulation' && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <AODBControlCenter />}
+               {activeTab === 'analytics'  && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <PredictiveAnalytics userType={profile?.role} />}
                {activeTab === 'manual'     && <UserManual userType={profile?.role} />}
              </motion.div>
            </AnimatePresence>
