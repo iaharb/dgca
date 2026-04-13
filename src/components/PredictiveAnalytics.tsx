@@ -123,23 +123,35 @@ export const PredictiveAnalytics: React.FC<{ userType?: string }> = ({ userType 
     </div>
   );
 
-  return (
-    <div className="space-y-10">
-      {/* Analytics Header Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { 
-            label: 'Cloud Engine', 
-            value: selectedCloud === 'gcp' ? 'BigQuery' : 'SageMaker', 
-            sub: 'Operational Sync Active', 
-            icon: Database, 
-            color: selectedCloud === 'gcp' ? 'text-blue-600' : 'text-orange-600', 
-            bg: selectedCloud === 'gcp' ? 'bg-blue-50' : 'bg-orange-50' 
-          },
-          { label: 'Gate Availability', value: `${gateMap.length - allocations.length}/${gateMap.length}`, sub: 'Active Resources', icon: LayoutGrid, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Auto-Allocation', value: isAutoAllocate ? 'ENABLED' : 'OFF', sub: 'Governance Mode', icon: ShieldCheck, color: 'text-purple-600', bg: 'bg-purple-50' },
-          { label: 'Active Flights', value: allocations.length, sub: 'Simulated Load', icon: RefreshCw, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-        ].map((stat, i) => (
+      // Stat Card Data
+      const totalGates = gateMap.length;
+      const occupiedGateIds = new Set(allocations.map(a => a.resource_id));
+      const availableGates = Math.max(0, totalGates - occupiedGateIds.size);
+
+      return (
+        <div className="space-y-10">
+          {/* Analytics Header Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { 
+                label: 'Cloud Engine', 
+                value: selectedCloud === 'gcp' ? 'BigQuery' : 'SageMaker', 
+                sub: 'Operational Sync Active', 
+                icon: Database, 
+                color: selectedCloud === 'gcp' ? 'text-blue-600' : 'text-orange-600', 
+                bg: selectedCloud === 'gcp' ? 'bg-blue-50' : 'bg-orange-50' 
+              },
+              { 
+                label: 'Gate Availability', 
+                value: totalGates > 0 ? `${availableGates}/${totalGates}` : '0/0', 
+                sub: totalGates > 0 ? 'Active Resources' : 'Master Records Missing', 
+                icon: LayoutGrid, 
+                color: 'text-emerald-600', 
+                bg: 'bg-emerald-50' 
+              },
+              { label: 'Auto-Allocation', value: isAutoAllocate ? 'ENABLED' : 'OFF', sub: 'Governance Mode', icon: ShieldCheck, color: 'text-purple-600', bg: 'bg-purple-50' },
+              { label: 'Active Flights', value: allocations.length, sub: 'Simulated Load', icon: RefreshCw, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+            ].map((stat, i) => (
           <motion.div 
             key={i + selectedCloud}
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
