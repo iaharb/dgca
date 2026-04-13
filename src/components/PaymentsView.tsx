@@ -55,6 +55,7 @@ export const PaymentsView: React.FC<Props> = ({ userType, airlineCode }) => {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [rejectTarget, setRejectTarget] = useState<Payment | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [activeCard,   setActiveCard]   = useState<string | null>(null);
 
   const isDGCA = userType === 'dgca';
 
@@ -133,22 +134,24 @@ export const PaymentsView: React.FC<Props> = ({ userType, airlineCode }) => {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Pending Approval', val: stats.pendingKD,   color: 'text-amber-600',   bg: 'bg-amber-50',   icon: Clock       },
-          { label: 'Approved (Queued)', val: stats.approvedKD, color: 'text-teal-600',    bg: 'bg-teal-50',    icon: CheckCircle },
-          { label: 'Total Processed',  val: stats.processedKD, color: 'text-emerald-600', bg: 'bg-emerald-50', icon: Banknote    },
-          { label: 'Total Transactions',val: stats.totalCount, color: 'text-slate-700',   bg: 'bg-slate-50',   icon: ShieldCheck, isCount: true },
+          { id: 'pending',   label: 'Pending Approval',   val: stats.pendingKD,   color: 'text-amber-600',   bg: 'bg-amber-50',   icon: Clock,       isCount: false },
+          { id: 'approved',  label: 'Approved (Queued)',  val: stats.approvedKD,  color: 'text-teal-600',    bg: 'bg-teal-50',    icon: CheckCircle, isCount: false },
+          { id: 'processed', label: 'Total Processed',    val: stats.processedKD, color: 'text-emerald-600', bg: 'bg-emerald-50', icon: Banknote,    isCount: false },
+          { id: 'count',     label: 'Total Transactions', val: stats.totalCount,  color: 'text-slate-700',   bg: 'bg-slate-50',   icon: ShieldCheck, isCount: true  },
         ].map((s, i) => (
-          <div key={i} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <div className={`${s.bg} w-10 h-10 rounded-xl flex items-center justify-center mb-3`}>
+          <motion.div key={i} whileHover={{ y: -2 }} onClick={() => setActiveCard(s.id)}
+            className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-blue-400 hover:shadow-md transition-all group">
+            <div className={`${s.bg} w-10 h-10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
               <s.icon className={`w-5 h-5 ${s.color}`} />
             </div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
             <p className={`text-xl font-black ${s.color} mt-1`}>
-              {(s as any).isCount ? s.val.toLocaleString() : <>
+              {s.isCount ? s.val.toLocaleString() : <>
                 {fmt(s.val as number)} <span className="text-[10px] text-slate-400 font-bold">KD</span>
               </>}
             </p>
-          </div>
+            <p className="text-[9px] text-blue-500 font-bold mt-2 uppercase tracking-widest">Click for breakdown →</p>
+          </motion.div>
         ))}
       </div>
 
@@ -326,7 +329,108 @@ export const PaymentsView: React.FC<Props> = ({ userType, airlineCode }) => {
             </motion.div>
           </div>
         )}
+        {activeCard && (
+          <PaymentBreakdownModal
+            cardId={activeCard}
+            payments={payments}
+            onClose={() => setActiveCard(null)}
+            periodLabel={periodLabel}
+          />
+        )}
       </AnimatePresence>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Payment Stat Card Breakdown Modal
+// ─────────────────────────────────────────────────────────────────────────────
+interface PBProps {
+  cardId: string; payments: Payment[];
+  onClose: () => void; periodLabel: (d?: string) => string;
+}
+
+const PaymentBreakdownModal: React.FC<PBProps> = ({ cardId, payments, onClose, periodLabel }) => {
+  const STATUS_FILTER: Record<string, string> = {
+    pending:   'pending_approval',
+    approved:  'approved',
+    processed: 'processed',
+    count:     'all',
+  };
+  const CARD_META: Record<string, { label: string; color: string; note: string }> = {
+    pending:   { label: 'Awaiting DGCA Approval', color: 'text-amber-700',   note: 'Payments held pending DGCA authorisation' },
+    approved:  { label: 'Approved — Queued',       color: 'text-teal-700',    note: 'DGCA-approved, awaiting processing' },
+    processed: { label: 'Total Processed',          color: 'text-emerald-700', note: 'Successfully settled payments' },
+    count:     { label: 'All Transactions',          color: 'text-slate-700',   note: 'Every payment record across all statuses' },
+  };
+
+  const statusFilter = STATUS_FILTER[cardId];
+  const meta = CARD_META[cardId];
+  const filtered = statusFilter === 'all' ? payments : payments.filter(p => p.status === statusFilter);
+
+  // Group by carrier
+  const byCarrier: Record<string, { name: string; rows: Payment[]; total: number }> = {};
+  filtered.forEach(p => {
+    const key = p.airlines?.iata_code || 'UNK';
+    if (!byCarrier[key]) byCarrier[key] = { name: p.airlines?.name || 'Unknown', rows: [], total: 0 };
+    byCarrier[key].rows.push(p);
+    byCarrier[key].total += +p.amount_kd;
+  });
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={onClose} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
+      <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="relative w-full max-w-3xl bg-white rounded-[32px] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div className="p-8 bg-slate-50 border-b border-slate-100 flex items-start justify-between">
+          <div>
+            <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Payment Breakdown</p>
+            <h3 className={`text-2xl font-black ${meta.color}`}>{meta.label}</h3>
+            <p className="text-xs text-slate-500 font-bold mt-1">{meta.note}</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-xl transition-all">
+            <X className="w-5 h-5 text-slate-500" />
+          </button>
+        </div>
+        <div className="p-8 space-y-6">
+          {Object.entries(byCarrier).length === 0 && (
+            <p className="text-center text-slate-400 text-sm py-8">No payments in this category.</p>
+          )}
+          {Object.entries(byCarrier).map(([iata, group]) => (
+            <div key={iata}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-[9px] font-black text-blue-700">{iata}</div>
+                <span className="text-sm font-black text-slate-900">{group.name}</span>
+                <span className="ml-auto text-sm font-black text-slate-700">{fmt(group.total)} KD</span>
+              </div>
+              <div className="space-y-2 pl-11">
+                {group.rows.map(p => {
+                  const tc = TYPE_CFG[p.payment_type] || { label: p.payment_type, color: 'text-slate-700', bg: 'bg-slate-50' };
+                  return (
+                    <div key={p.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                      <div>
+                        <div className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${tc.color} ${tc.bg} mb-1`}>{tc.label}</div>
+                        <p className="text-xs font-bold text-slate-700">{p.description}</p>
+                        <p className="text-[9px] text-slate-400">{periodLabel(p.invoices?.period_month)}</p>
+                      </div>
+                      <p className="text-sm font-black text-slate-900 ml-4 whitespace-nowrap">{fmt(+p.amount_kd)} KD</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+          {/* Grand total */}
+          {filtered.length > 0 && (
+            <div className="flex justify-between items-center p-4 bg-slate-900 rounded-2xl text-white">
+              <span className="text-sm font-black uppercase tracking-widest">Grand Total</span>
+              <span className="text-xl font-black">{fmt(filtered.reduce((a, p) => a + +p.amount_kd, 0))} KD</span>
+            </div>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 };

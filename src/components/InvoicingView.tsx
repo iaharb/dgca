@@ -54,6 +54,7 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
   const [selected,     setSelected]     = useState<Invoice | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [activeCard,   setActiveCard]   = useState<string | null>(null);
 
   const isDGCA    = userType === 'dgca';
   const isOps     = userType === 'operations_partner';
@@ -139,21 +140,23 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
     <div className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Gross Revenue', val: stats.gross, color: 'text-slate-700', bg: 'bg-slate-50', icon: DollarSign },
-          { label: 'DGCA Net (65%)',       val: stats.dgca,  color: 'text-blue-600',  bg: 'bg-blue-50',  icon: Shield    },
-          { label: 'Ops Partner (35%)',    val: stats.ops,   color: 'text-indigo-600',bg: 'bg-indigo-50',icon: TrendingUp},
-          { label: 'SNA + Late Fees',      val: stats.sna + stats.late, color: 'text-red-600', bg: 'bg-red-50', icon: AlertTriangle },
+      {[
+          { id: 'gross',  label: 'Total Gross Revenue', val: stats.gross, color: 'text-slate-700', bg: 'bg-slate-50', icon: DollarSign },
+          { id: 'dgca',   label: 'DGCA Net (65%)',       val: stats.dgca,  color: 'text-blue-600',  bg: 'bg-blue-50',  icon: Shield    },
+          { id: 'ops',    label: 'Ops Partner (35%)',    val: stats.ops,   color: 'text-indigo-600',bg: 'bg-indigo-50',icon: TrendingUp},
+          { id: 'deduct', label: 'SNA + Late Fees',      val: stats.sna + stats.late, color: 'text-red-600', bg: 'bg-red-50', icon: AlertTriangle },
         ].map((s, i) => (
-          <div key={i} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <div className={`${s.bg} w-10 h-10 rounded-xl flex items-center justify-center mb-3`}>
+          <motion.div key={i} whileHover={{ y: -2 }} onClick={() => setActiveCard(s.id)}
+            className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-blue-400 hover:shadow-md transition-all group">
+            <div className={`${s.bg} w-10 h-10 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
               <s.icon className={`w-5 h-5 ${s.color}`} />
             </div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
             <p className={`text-xl font-black ${s.color} mt-1`}>
               {fmt(s.val)} <span className="text-[10px] text-slate-400 font-bold">KD</span>
             </p>
-          </div>
+            <p className="text-[9px] text-blue-500 font-bold mt-2 uppercase tracking-widest">Click for breakdown →</p>
+          </motion.div>
         ))}
       </div>
 
@@ -276,7 +279,115 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
             periodLabel={periodLabel}
           />
         )}
+        {activeCard && (
+          <CardBreakdownModal
+            cardId={activeCard}
+            invoices={invoices}
+            stats={stats}
+            onClose={() => setActiveCard(null)}
+            periodLabel={periodLabel}
+          />
+        )}
       </AnimatePresence>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Stat Card Breakdown Modal
+// ─────────────────────────────────────────────────────────────────────────────
+interface BreakdownProps {
+  cardId: string; invoices: Invoice[]; stats: any;
+  onClose: () => void; periodLabel: (d: string) => string;
+}
+
+const CardBreakdownModal: React.FC<BreakdownProps> = ({ cardId, invoices, stats, onClose, periodLabel }) => {
+  // Group by period_month, then by airline
+  const periods = [...new Set(invoices.map(i => i.period_month))].sort();
+  const airlines = [...new Map(invoices.map(i => [i.airlines?.iata_code, i.airlines?.name])).entries()];
+
+  const getValue = (inv: Invoice) => {
+    if (cardId === 'gross')  return +inv.gross_revenue_kd;
+    if (cardId === 'dgca')   return +inv.net_dgca_kd;
+    if (cardId === 'ops')    return +inv.net_ops_kd;
+    if (cardId === 'deduct') return +inv.sna_deductions_kd + +inv.late_fees_kd;
+    return 0;
+  };
+
+  const CARD_META: Record<string, { label: string; color: string; note: string }> = {
+    gross:  { label: 'Total Gross Revenue',  color: 'text-slate-700',   note: '(PAX × $2.00 + Desks × $150.00) × 0.308 KD/USD' },
+    dgca:   { label: 'DGCA Net (65%)',       color: 'text-blue-700',    note: 'Gross × 65% + Late Payment Fees' },
+    ops:    { label: 'Ops Partner (35%)',     color: 'text-indigo-700',  note: 'Gross × 35% − SNA Penalty Deductions' },
+    deduct: { label: 'SNA + Late Fees',       color: 'text-red-700',     note: 'SNA penalty deductions + late payment penalties (KD 1,000/day)' },
+  };
+
+  const meta = CARD_META[cardId];
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={onClose} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
+      <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="relative w-full max-w-4xl bg-white rounded-[32px] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div className="p-8 bg-slate-50 border-b border-slate-100 flex items-start justify-between">
+          <div>
+            <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Invoice Breakdown</p>
+            <h3 className={`text-2xl font-black ${meta.color}`}>{meta.label}</h3>
+            <p className="text-xs text-slate-500 font-bold mt-1">{meta.note}</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-xl transition-all">
+            <X className="w-5 h-5 text-slate-500" />
+          </button>
+        </div>
+        <div className="p-8 overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 border-b border-slate-100">
+                <th className="p-4">Carrier</th>
+                {periods.map(p => <th key={p} className="p-4 text-right">{periodLabel(p)}</th>)}
+                <th className="p-4 text-right">YTD Total</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {airlines.map(([iata, name]) => {
+                const airlineInvoices = invoices.filter(i => i.airlines?.iata_code === iata);
+                const periodVals = periods.map(p => {
+                  const inv = airlineInvoices.find(i => i.period_month === p);
+                  return inv ? getValue(inv) : null;
+                });
+                const total = periodVals.reduce((a, v) => a + (v || 0), 0);
+                if (total === 0) return null;
+                return (
+                  <tr key={iata} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-[9px] font-black text-blue-700">{iata}</div>
+                        <span className="text-sm font-bold text-slate-900">{name}</span>
+                      </div>
+                    </td>
+                    {periodVals.map((v, idx) => (
+                      <td key={idx} className="p-4 text-right text-sm text-slate-600">
+                        {v !== null && v > 0 ? fmt(v) : <span className="text-slate-300">—</span>}
+                      </td>
+                    ))}
+                    <td className="p-4 text-right text-sm font-black text-slate-900">{fmt(total)}</td>
+                  </tr>
+                );
+              })}
+              {/* Totals row */}
+              <tr className="bg-slate-50 font-black border-t-2 border-slate-200">
+                <td className="p-4 text-sm font-black text-slate-900">All Carriers</td>
+                {periods.map(p => {
+                  const total = invoices.filter(i => i.period_month === p).reduce((a, i) => a + getValue(i), 0);
+                  return <td key={p} className="p-4 text-right text-sm font-black text-slate-900">{fmt(total)}</td>;
+                })}
+                <td className="p-4 text-right text-sm font-black text-blue-700">{fmt(invoices.reduce((a, i) => a + getValue(i), 0))} KD</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
     </div>
   );
 };

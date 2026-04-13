@@ -40,34 +40,52 @@ export const FinancialMap: React.FC<any> = ({ userType, airlineCode }) => {
       setRawPenalties(penalties);
 
       const USD_TO_KD = 0.308;
-      const totalPax = metrics.reduce((acc, curr) => acc + Number(curr.pax_count || 0), 0);
-      const totalDesks = metrics.reduce((acc, curr) => acc + Number(curr.desk_count || 0), 0);
-      
-      const grossRevenueUSD = (totalPax * 2.000) + (totalDesks * 250.000);
-      const grossRevenueKD = grossRevenueUSD * USD_TO_KD;
+      const PAX_RATE_USD  = 2.000;
+      const DESK_RATE_USD = 150.000;  // ← corrected from 250 → 150
 
-      const dgcaShareUSD = (totalPax * 2.000 * 0.65) + (totalDesks * 250.000);
-      const dgcaShareKD = dgcaShareUSD * USD_TO_KD;
+      // ── Per-month chart data (real per-month values) ─────────────────────
+      const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthlyMap: Record<number, { gross: number; dgca: number; ops: number; penalty: number }> = {};
 
-      const penaltyAmtKD = penalties.reduce((acc, curr) => acc + Number(curr.amount_kd || 0), 0);
+      metrics.forEach(m => {
+        const mIdx = new Date(m.billing_month + 'T12:00:00').getMonth(); // 0-based
+        if (!monthlyMap[mIdx]) monthlyMap[mIdx] = { gross: 0, dgca: 0, ops: 0, penalty: 0 };
+        const gUSD = (Number(m.pax_count || 0) * PAX_RATE_USD) + (Number(m.desk_count || 0) * DESK_RATE_USD);
+        const gKD  = gUSD * USD_TO_KD;
+        monthlyMap[mIdx].gross += gKD;
+        monthlyMap[mIdx].dgca  += gKD * 0.65;
+        monthlyMap[mIdx].ops   += gKD * 0.35;
+      });
 
-      const opsPartnerShareUSD = (totalPax * 2.000 * 0.35);
-      const opsPartnerShareKD = (opsPartnerShareUSD * USD_TO_KD) - penaltyAmtKD;
+      penalties.forEach(p => {
+        const mIdx = new Date(p.created_at).getMonth();
+        if (!monthlyMap[mIdx]) monthlyMap[mIdx] = { gross: 0, dgca: 0, ops: 0, penalty: 0 };
+        monthlyMap[mIdx].penalty += Number(p.amount_kd || 0);
+      });
+
+      // ── YTD totals ────────────────────────────────────────────────────────
+      const totalPax   = metrics.reduce((a, m) => a + Number(m.pax_count  || 0), 0);
+      const totalDesks = metrics.reduce((a, m) => a + Number(m.desk_count || 0), 0);
+      const grossRevenueKD  = ((totalPax * PAX_RATE_USD) + (totalDesks * DESK_RATE_USD)) * USD_TO_KD;
+      const dgcaShareKD     = grossRevenueKD * 0.65;
+      const penaltyAmtKD    = penalties.reduce((a, p) => a + Number(p.amount_kd || 0), 0);
+      const opsPartnerShareKD = (grossRevenueKD * 0.35) - penaltyAmtKD;
 
       setStats([
-        { label: 'Gross Revenue', value: grossRevenueKD, icon: Wallet, color: 'text-slate-600', bg: 'bg-slate-50' },
-        { label: 'DGCA Share (65%)', value: dgcaShareKD, icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-50' },
-        { label: 'Ops Partner Share (35%)', value: opsPartnerShareKD, icon: CreditCard, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-        { label: 'Annex 10 Penalties', value: penaltyAmtKD, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-50' },
+        { label: 'Gross Revenue',          value: grossRevenueKD,   icon: Wallet,        color: 'text-slate-600',  bg: 'bg-slate-50'  },
+        { label: 'DGCA Share (65%)',        value: dgcaShareKD,      icon: TrendingUp,    color: 'text-blue-600',   bg: 'bg-blue-50'   },
+        { label: 'Ops Partner Share (35%)', value: opsPartnerShareKD,icon: CreditCard,    color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Annex 10 Penalties',      value: penaltyAmtKD,     icon: AlertTriangle, color: 'text-red-500',    bg: 'bg-red-50'    },
       ]);
 
-      const months = ['Jan', 'Feb', 'Mar', 'Apr'];
-      setChartData(months.map((m, i) => ({ 
-        month: m, 
-        gross: (grossRevenueKD / (i + 1.2)) || 0,
-        dgca: (dgcaShareKD / (i + 1.2)) || 0,
-        ops: (opsPartnerShareKD / (i + 1.2)) || 0,
-        penalty: (penaltyAmtKD / 4) || 0 
+      // Build chart — only months that have data
+      const usedMonths = Object.keys(monthlyMap).map(Number).sort((a,b) => a-b);
+      setChartData(usedMonths.map(mIdx => ({
+        month:   MONTH_LABELS[mIdx],
+        gross:   monthlyMap[mIdx].gross,
+        dgca:    monthlyMap[mIdx].dgca,
+        ops:     monthlyMap[mIdx].ops,
+        penalty: monthlyMap[mIdx].penalty,
       })));
 
     } catch (e) {
@@ -131,14 +149,11 @@ export const FinancialMap: React.FC<any> = ({ userType, airlineCode }) => {
                      const pax = Number(m.pax_count || 0);
                      const desk = Number(m.desk_count || 0);
 
+                     const gKD = ((pax * 2.000) + (desk * 150.000)) * USD_TO_KD;
                      let valKD = 0;
-                     if (activeCard === 'Gross Revenue') {
-                         valKD = ((pax * 2.000) + (desk * 250.000)) * USD_TO_KD;
-                     } else if (activeCard === 'DGCA Share (65%)') {
-                         valKD = ((pax * 2.000 * 0.65) + (desk * 250.000)) * USD_TO_KD;
-                     } else if (activeCard === 'Ops Partner Share (35%)') {
-                         valKD = (pax * 2.000 * 0.35) * USD_TO_KD;
-                     }
+                     if      (activeCard === 'Gross Revenue')                valKD = gKD;
+                     else if (activeCard === 'DGCA Share (65%)')             valKD = gKD * 0.65;
+                     else if (activeCard === 'Ops Partner Share (35%)')      valKD = gKD * 0.35;
 
                      airlinesMap[d_iata].months[mIdx] += valKD;
                      airlinesMap[d_iata].total += valKD;
