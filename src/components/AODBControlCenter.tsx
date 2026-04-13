@@ -14,6 +14,8 @@ export const AODBControlCenter: React.FC = () => {
   const [certifiedCarriers, setCertifiedCarriers] = useState<CertifiedCarrier[]>([]);
   const [loadingCarriers,   setLoadingCarriers]   = useState(true);
   const [logs, setLogs] = useState<{ msg: string; type: 'info' | 'success' | 'warn'; time: string }[]>([]);
+  const [selectedTerminal, setSelectedTerminal] = useState('T4');
+  const [selectedGate, setSelectedGate] = useState('G-01');
 
   /* ── Load certified carriers from DB ── */
   useEffect(() => { fetchCertifiedCarriers(); }, []);
@@ -61,11 +63,14 @@ export const AODBControlCenter: React.FC = () => {
   };
 
   const handleManualFeed = async (carrier: CertifiedCarrier) => {
-    addLog(`Injecting AODB feed for ${carrier.name} (${carrier.iata})…`, 'info');
+    addLog(`Injecting granular AODB feed for ${carrier.name} (${carrier.iata})…`, 'info');
     const paxValue = Math.floor(Math.random() * 300) + 150;
     try {
-      await simulateAODBFeed(carrier.iata, paxValue);
-      addLog(`✓ Synced +${paxValue} pax for ${carrier.iata} — metrics updated`, 'success');
+      await simulateAODBFeed(carrier.iata, paxValue, { 
+        terminal: selectedTerminal, 
+        gate: selectedGate 
+      });
+      addLog(`✓ Synced ${carrier.iata}: +${paxValue} pax at ${selectedTerminal}/${selectedGate}`, 'success');
     } catch (e) {
       addLog(`⚠ Feed failed for ${carrier.iata} — check Supabase connectivity`, 'warn');
     }
@@ -137,6 +142,31 @@ export const AODBControlCenter: React.FC = () => {
               >
                 Refresh ↻
               </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-6">
+               <div className="space-y-1.5">
+                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Active Terminal</label>
+                 <select 
+                   value={selectedTerminal} 
+                   onChange={(e) => setSelectedTerminal(e.target.value)}
+                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-brand-500"
+                 >
+                   <option value="T4">Terminal 4 (KAC)</option>
+                   <option value="T1">Terminal 1 (Gvmt)</option>
+                   <option value="T5">Terminal 5 (JZR)</option>
+                 </select>
+               </div>
+               <div className="space-y-1.5">
+                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest px-1">Allocation Hub</label>
+                 <input 
+                   type="text" 
+                   value={selectedGate} 
+                   onChange={(e) => setSelectedGate(e.target.value)}
+                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:border-brand-500 uppercase"
+                   placeholder="e.g. G-04" 
+                 />
+               </div>
             </div>
 
             {loadingCarriers ? (
