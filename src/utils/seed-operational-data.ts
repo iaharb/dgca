@@ -1,60 +1,49 @@
 import { supabase } from '../lib/supabase';
 
 export const seedOperationalData = async () => {
-  console.log('[SEED-OPS] Initiating Operational Infrastructure Seeding...');
+  console.log('[SEED-OPS] Initiating Clean Operational Seeding...');
 
   try {
-    // 1. Seed/Fetch Terminals
+    // 1. CLEANUP PHASE: Remove old records with NULL resources to clear the path
+    await supabase.from('resource_allocations').delete().is('resource_id', null);
+    await supabase.from('resource_allocations').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Full clear for fresh start
+    await supabase.from('scheduled_flights').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+    // 2. SEED TERMINALS
     const terminals = [
       { name: 'Terminal 4', operator: 'KAC' },
       { name: 'Terminal 1', operator: 'DGCA' }
     ];
 
-    const termIds: string[] = [];
     for (const t of terminals) {
-      // First try to insert, then fetch (to handle both new and existing)
       await supabase.from('terminals').upsert(t, { onConflict: 'name' });
-      const { data } = await supabase.from('terminals').select('id').eq('name', t.name).single();
-      if (data) termIds.push(data.id);
     }
+    const { data: termData } = await supabase.from('terminals').select('id, name');
+    const termMap = termData?.reduce((acc: any, t) => ({ ...acc, [t.name]: t.id }), {});
 
-    if (termIds.length === 0) throw new Error("Could not initialize Terminals.");
-
-    // 2. Seed/Fetch Resources (5 Gates)
+    // 3. SEED RESOURCES
     const gates = [
-      { terminal_id: termIds[0], resource_type: 'gate', identifier: 'G-01' },
-      { terminal_id: termIds[0], resource_type: 'gate', identifier: 'G-02' },
-      { terminal_id: termIds[0], resource_type: 'gate', identifier: 'G-03' },
-      { terminal_id: termIds[1], resource_type: 'gate', identifier: 'G-04' },
-      { terminal_id: termIds[1], resource_type: 'gate', identifier: 'G-05' }
+      { terminal_id: termMap['Terminal 4'], resource_type: 'gate', identifier: 'G-01' },
+      { terminal_id: termMap['Terminal 4'], resource_type: 'gate', identifier: 'G-02' },
+      { terminal_id: termMap['Terminal 1'], resource_type: 'gate', identifier: 'G-04' },
+      { terminal_id: termMap['Terminal 1'], resource_type: 'gate', identifier: 'G-05' }
     ];
 
-    const gateIds: string[] = [];
     for (const g of gates) {
-      await supabase.from('resources').upsert(g, { onConflict: 'identifier' });
-      const { data } = await supabase.from('resources').select('id').eq('identifier', g.identifier).single();
-      if (data) gateIds.push(data.id);
+      if (g.terminal_id) await supabase.from('resources').upsert(g, { onConflict: 'identifier' });
     }
 
-    // 3. Seed MUSE Desks (10 Desks)
-    for (let i = 1; i <= 10; i++) {
-      await supabase.from('resources').upsert({
-        terminal_id: termIds[0],
-        resource_type: 'checkin_counter',
-        identifier: `MUSE-C${i.toString().padStart(2, '0')}`
-      }, { onConflict: 'identifier' });
-    }
+    // Capture the valid Gate IDs
+    const { data: gateRecords } = await supabase.from('resources').select('id').eq('resource_type', 'gate');
+    const gateIds = gateRecords?.map(r => r.id) || [];
 
-    // 4. Fetch Certified Airlines (KU & J9)
+    // 4. SEED FLIGHTS & ALLOCATIONS (2 airlines x 4 months)
     const { data: airlines } = await supabase.from('airlines').select('id, iata_code').in('iata_code', ['KU', 'J9']);
 
     if (airlines && gateIds.length > 0) {
-      console.log(`[SEED-OPS] Found ${airlines.length} airlines and ${gateIds.length} gates. Generating history...`);
-
-      // 5. Seed 4 Months of Historical Data (Sept - Dec 2026)
       for (let month = 8; month <= 11; month++) {
         for (const airline of airlines) {
-          for (let day = 1; day <= 2; day++) { // 2 flights per day to prevent throttle
+          for (let day = 1; day <= 10; day++) { // 10 days of history
             const flightNum = `${airline.iata_code}${100 + day + month}`;
             const baseTime = new Date(2026, month, day + 10, 10, 0, 0);
 
@@ -79,8 +68,8 @@ export const seedOperationalData = async () => {
       }
     }
 
-    console.log('[SEED-OPS] Operational tables success!');
+    console.log('[SEED-OPS] Operational Bridge Restored Successfully.');
   } catch (err) {
-    console.error('[SEED-OPS] Fatal sync error:', err);
+    console.error('[SEED-OPS] Fatal error:', err);
   }
 };
