@@ -19,6 +19,7 @@ import { seedOperationalData } from './utils/seed-operational-data';
 import { OnboardingPublicPortal } from './components/OnboardingPublicPortal';
 import { OnboardingPipelineView } from './components/OnboardingPipelineView';
 import { CarrierWorkflowView } from './components/CarrierWorkflowView';
+import { SignaturePortal } from './components/SignaturePortal';
 import { NotificationBell } from './components/NotificationBell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -143,6 +144,11 @@ function App() {
   // Handle Public Onboarding Portal
   if (window.location.pathname === '/onboarding/june-2026') {
      return <OnboardingPublicPortal />;
+  }
+
+  // Handle Signature Portal
+  if (window.location.pathname.startsWith('/sign-agreement/')) {
+     return <SignaturePortal />;
   }
 
   if (!isInitiated) return <PortalInitiation onInitiated={handleInitiate} />;

@@ -67,6 +67,33 @@ export const NotificationBell: React.FC = () => {
     return date.toLocaleDateString();
   };
 
+  const handleApprove = async (notification: Notification) => {
+    const carrierId = notification.metadata?.carrier_id;
+    if (!carrierId) return;
+
+    try {
+      setUnreadCount(prev => prev); // keep state
+      const { error } = await supabase.rpc('handle_carrier_acknowledgement', {
+        target_carrier_id: carrierId,
+        performing_officer_id: (await supabase.auth.getUser()).data.user?.id
+      });
+      
+      if (error) throw error;
+      
+      // Update notification message locally
+      setNotifications(prev => prev.map(n => n.id === notification.id ? {
+        ...n,
+        type: 'success',
+        message: `Annex 10 dispatched to ${notification.metadata?.airline_name}.`
+      } : n));
+      
+      alert(`Agreement generated for ${notification.metadata?.airline_name}. Link sent to registry email.`);
+    } catch (err) {
+      console.error('Workflow error:', err);
+      alert('Failed to trigger agreement workflow.');
+    }
+  };
+
   return (
     <div className="relative">
       <button 
@@ -92,7 +119,7 @@ export const NotificationBell: React.FC = () => {
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute right-0 mt-3 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 z-[110] overflow-hidden"
+              className="absolute right-0 mt-3 w-96 bg-white rounded-3xl shadow-2xl border border-slate-100 z-[110] overflow-hidden"
             >
               <div className="p-5 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
                 <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Activity Stream</h4>
@@ -101,7 +128,7 @@ export const NotificationBell: React.FC = () => {
                 </span>
               </div>
 
-              <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+              <div className="max-h-[480px] overflow-y-auto custom-scrollbar">
                 {notifications.length === 0 ? (
                   <div className="p-10 text-center">
                     <Clock className="w-8 h-8 text-slate-200 mx-auto mb-2" />
@@ -111,24 +138,45 @@ export const NotificationBell: React.FC = () => {
                   notifications.map((n) => (
                     <div 
                       key={n.id}
-                      onClick={() => markAsRead(n.id)}
-                      className={`p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer group ${!n.is_read ? 'bg-blue-50/30' : ''}`}
+                      className={`p-5 border-b border-slate-50 transition-colors group ${!n.is_read ? 'bg-blue-50/20' : ''}`}
                     >
-                      <div className="flex gap-3">
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                          n.type === 'action_required' ? 'bg-amber-100 text-amber-600' :
+                      <div className="flex gap-4">
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
+                          n.type === 'carrier_enrolled' ? 'bg-blue-600 text-white' :
                           n.type === 'success' ? 'bg-emerald-100 text-emerald-600' :
-                          'bg-blue-100 text-blue-600'
+                          'bg-slate-100 text-slate-600'
                         }`}>
-                          {n.type === 'success' ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                          {n.type === 'success' ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-black text-slate-900 leading-tight mb-1">{n.title}</p>
-                          <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{n.message}</p>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-[9px] font-black text-slate-400 uppercase">{getTimeAgo(n.created_at)}</span>
-                            {!n.is_read && <span className="w-2 h-2 bg-blue-600 rounded-full" />}
+                          <div className="flex justify-between items-start mb-1">
+                            <p className="text-xs font-black text-slate-900 leading-tight">{n.title}</p>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase shrink-0 ml-2">{getTimeAgo(n.created_at)}</span>
                           </div>
+                          <p className="text-[11px] text-slate-500 font-medium leading-relaxed mb-3">{n.message}</p>
+                          
+                          {n.type === 'carrier_enrolled' && (
+                             <div className="flex gap-2">
+                                <button 
+                                  onClick={() => handleApprove(n)}
+                                  className="flex-1 bg-blue-600 text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
+                                >
+                                   Approve & Send
+                                </button>
+                                <button className="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
+                                   Review
+                                </button>
+                             </div>
+                          )}
+
+                          {!n.is_read && n.type !== 'carrier_enrolled' && (
+                            <button 
+                              onClick={() => markAsRead(n.id)}
+                              className="text-[10px] font-bold text-blue-600 hover:underline"
+                            >
+                               Mark as read
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -136,9 +184,9 @@ export const NotificationBell: React.FC = () => {
                 )}
               </div>
 
-              <div className="p-4 bg-slate-50/50 border-t border-slate-50 text-center">
-                <button className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline flex items-center justify-center gap-1 mx-auto">
-                  View Full Audit Logs <ChevronRight className="w-3 h-3" />
+              <div className="p-4 bg-slate-50 text-center">
+                <button className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors flex items-center justify-center gap-1 mx-auto">
+                  View Full Governance Logs <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
             </motion.div>
