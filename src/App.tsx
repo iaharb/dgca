@@ -40,6 +40,8 @@ import {
   BookOpen,
   Receipt,
   Banknote,
+  Package,
+  Zap,
   Sparkles
 } from 'lucide-react';
 
