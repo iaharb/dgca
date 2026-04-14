@@ -6,8 +6,6 @@ import {
   Plus, 
   RefreshCcw, 
   Activity, 
-  LayoutGrid,
-  History,
   Info,
   ChevronRight,
   Database

@@ -10,7 +10,6 @@ import {
   X, 
   ExternalLink,
   ChevronRight,
-  TrendingRight,
   ShieldCheck,
   AlertCircle,
   RefreshCcw,
