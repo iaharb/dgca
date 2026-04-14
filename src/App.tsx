@@ -165,9 +165,21 @@ function App() {
   const triggerMEASatSignOff = async () => {
     setIsSyncing(true);
     try {
-      const { data: airline } = await supabase.from('airlines').select('id').eq('iata_code', 'ME').maybeSingle();
-      if (airline) {
-        const { data: agreement } = await supabase.from('agreements').select('id').eq('airline_id', airline.id).maybeSingle();
+      const { data: targetCarrier } = await supabase.from('carriers').select('id').eq('iata_code', 'ME').maybeSingle();
+      let airlineId = targetCarrier?.id;
+
+      if (!airlineId) {
+        const { data: newAirline } = await supabase.from('carriers').insert({
+          name: 'Middle East Airlines',
+          airline_name: 'Middle East Airlines',
+          iata_code: 'ME',
+          onboarding_status: 'INTEGRATION_STAGE_1'
+        }).select().single();
+        airlineId = newAirline?.id;
+      }
+
+      if (airlineId) {
+        const { data: agreement } = await supabase.from('agreements').select('id').eq('airline_id', airlineId).maybeSingle();
         if (agreement) {
           // ensure milestones exist, then mark sat_sign_off and certified
           const milestones = ['sat_sign_off', 'certified'];

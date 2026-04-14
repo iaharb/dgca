@@ -33,13 +33,13 @@ export const IntegrationPipeline: React.FC<any> = ({ onSelectProject, userType, 
 
   const fetchIntegrationStatus = async () => {
     try {
-      const [milestonesRes, agreementsRes, airlinesRes] = await Promise.all([
-        supabase.from('integration_milestones').select('*'),
+      const [carriersRes, agreementsRes, milestonesRes] = await Promise.all([
+        supabase.from('carriers').select('*'),
         supabase.from('agreements').select('*'),
-        supabase.from('airlines').select('*'),
+        supabase.from('integration_milestones').select('*'),
       ]);
 
-      const airlines   = airlinesRes.data   || [];
+      const airlines   = carriersRes.data   || [];
       const agreements = agreementsRes.data || [];
       const milestones = milestonesRes.data || [];
 

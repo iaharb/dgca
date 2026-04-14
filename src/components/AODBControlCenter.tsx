@@ -43,13 +43,13 @@ export const AODBControlCenter: React.FC = () => {
 
       const airlineIds = agreements.map(a => a.airline_id);
 
-      const { data: airlines } = await supabase
-        .from('airlines')
+      const { data: carriers } = await supabase
+        .from('carriers')
         .select('iata_code, name')
         .in('id', airlineIds);
 
       setCertifiedCarriers(
-        (airlines || []).map(a => ({ iata: a.iata_code, name: a.name }))
+        (carriers || []).map(a => ({ iata: a.iata_code, name: a.name }))
       );
     } catch (e) {
       console.error('[AODB] Failed to load certified carriers:', e);

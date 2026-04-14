@@ -41,12 +41,12 @@ export const OnboardingPipelineView: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [reqsRes, airlinesRes] = await Promise.all([
+      const [reqsRes, carriersRes] = await Promise.all([
         supabase.from('onboarding_requests').select('*').order('created_at', { ascending: false }),
-        supabase.from('airlines').select('*').order('created_at', { ascending: false })
+        supabase.from('carriers').select('*').order('created_at', { ascending: false })
       ]);
       setRequests(reqsRes.data || []);
-      setCarriers(airlinesRes.data || []);
+      setCarriers(carriersRes.data || []);
     } catch (err) {
       console.error('Fetch error:', err);
     } finally {

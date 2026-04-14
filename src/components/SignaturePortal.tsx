@@ -34,7 +34,7 @@ export const SignaturePortal: React.FC = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('airlines')
+        .from('carriers')
         .select('*')
         .eq('signature_token', token)
         .single();
@@ -67,7 +67,7 @@ export const SignaturePortal: React.FC = () => {
 
     try {
       const { error } = await supabase
-        .from('airlines')
+        .from('carriers')
         .update({
           onboarding_status: 'AGREEMENT_SIGNED',
           signed_at: new Date().toISOString(),

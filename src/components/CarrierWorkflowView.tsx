@@ -35,7 +35,7 @@ export const CarrierWorkflowView: React.FC<{ airline: any }> = ({ airline }) => 
     setLoading(true);
     try {
       const { error } = await supabase
-        .from('airlines')
+        .from('carriers')
         .update({
           onboarding_status: 'AGREEMENT_SIGNED',
           signed_at: new Date().toISOString(),
@@ -46,7 +46,7 @@ export const CarrierWorkflowView: React.FC<{ airline: any }> = ({ airline }) => 
 
       if (error) throw error;
       
-      const { data } = await supabase.from('airlines').select('*').eq('id', currentAirline.id).single();
+      const { data } = await supabase.from('carriers').select('*').eq('id', currentAirline.id).single();
       setCurrentAirline(data);
       setShowSignature(false);
     } catch (err) {
