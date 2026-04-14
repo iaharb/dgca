@@ -13,7 +13,8 @@ import {
   ShieldCheck,
   AlertCircle,
   RefreshCcw,
-  Zap
+  Zap,
+  CheckCircle2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 

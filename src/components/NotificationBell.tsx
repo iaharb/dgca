@@ -138,7 +138,8 @@ export const NotificationBell: React.FC = () => {
                   notifications.map((n) => (
                     <div 
                       key={n.id}
-                      className={`p-5 border-b border-slate-50 transition-colors group ${!n.is_read ? 'bg-blue-50/20' : ''}`}
+                      onClick={() => n.type !== 'carrier_enrolled' && markAsRead(n.id)}
+                      className={`p-5 border-b border-slate-50 transition-colors group ${!n.is_read ? 'bg-blue-50/20' : ''} ${n.type !== 'carrier_enrolled' ? 'cursor-pointer hover:bg-slate-50' : ''}`}
                     >
                       <div className="flex gap-4">
                         <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
