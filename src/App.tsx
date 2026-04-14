@@ -15,6 +15,7 @@ import { PaymentsView } from './components/PaymentsView';
 import { PredictiveAnalytics } from './components/PredictiveAnalytics';
 import { seedDemoData } from './utils/seed-demo-data';
 import { seedOperationalData } from './utils/seed-operational-data';
+import { NotificationBell } from './components/NotificationBell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, 
@@ -249,9 +250,9 @@ function App() {
             <Search className="w-4 h-4 text-slate-400 group-focus-within:text-blue-500" />
             <input type="text" placeholder="Search carrier fleet data..." className="bg-transparent text-sm font-medium outline-none w-full" />
           </div>
-          
           <div className="flex items-center gap-4">
-             {[Bell, HelpCircle, Command].map((Icon, i) => (
+             <NotificationBell />
+             {[HelpCircle, Command].map((Icon, i) => (
                 <button key={i} className="p-2 text-slate-400 hover:text-blue-500"><Icon className="w-5 h-5" /></button>
              ))}
              <div className="h-8 w-px bg-slate-200 mx-2"></div>

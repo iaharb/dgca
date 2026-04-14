@@ -189,13 +189,23 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
         signature_data: effectiveSig,
       }).eq('id', openSignId);
 
-      // 2. Write integration milestone so the Pipeline Board stage advances
+      // 2. Write integration milestone
       await supabase.from('integration_milestones').upsert({
         agreement_id:   openSignId,
         milestone_type: 'agreement_signed',
         status:         'completed',
         completed_at:   now,
       }, { onConflict: 'agreement_id,milestone_type' });
+
+      // 3. Add Workflow Notification for DGCA/Ops
+      const ag = agreements.find(a => a.id === openSignId);
+      await supabase.from('notifications').insert({
+        airline_id: ag?.airline_id,
+        title: 'Annex 10 Agreement Signed',
+        message: `${ag?.airlines?.name} has electronically signed the agreement. Action Required: Provision Carrier Manager credentials.`,
+        type: 'action_required',
+        metadata: { agreement_id: openSignId, action: 'enroll_manager' }
+      });
 
       setSubmitSuccess(openSignId);
       setTimeout(async () => {

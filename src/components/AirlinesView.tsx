@@ -28,15 +28,49 @@ export const AirlinesView: React.FC = () => {
   const [airlines, setAirlines] = useState<Airline[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPersonnel, setSelectedPersonnel] = useState<{ airline: Airline; role: string } | null>(null);
+  const [showEnrollModal, setShowEnrollModal] = useState(false);
+  const [enrollAirline, setEnrollAirline] = useState<Airline | null>(null);
+
+  // Form State
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', airlineId: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchAirlines();
   }, []);
 
+  const handleEnroll = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      // 1. Create the contact in the DB
+      await supabase.from('airline_contacts').insert({
+        airline_id: formData.airlineId,
+        role: 'IT', // Defaulting for now, could be dynamic
+        full_name: formData.name,
+        email: formData.email,
+        phone: formData.phone
+      });
+
+      // 2. Add an audit notification
+      const airlineName = airlines.find(a => a.id === formData.airlineId)?.name;
+      await supabase.from('notifications').insert({
+        title: 'Carrier Manager Enrolled',
+        message: `Manager ${formData.name} created for ${airlineName}. Credentials pending Auth Release.`,
+        type: 'success',
+        metadata: { airline_id: formData.airlineId }
+      });
+
+      setShowEnrollModal(false);
+      setFormData({ name: '', email: '', phone: '', airlineId: '' });
+      await fetchAirlines();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const fetchAirlines = async () => {
     try {
-      // Note: We fetch from airlines and try to join airline_contacts if it exists
-      // If it doesn't exist yet (migration not run), we'll handle it gracefully
       const { data, error } = await supabase
         .from('airlines')
         .select(`
@@ -46,7 +80,6 @@ export const AirlinesView: React.FC = () => {
         .order('name');
       
       if (error) {
-        // Fallback if joined fetch fails (e.g. table doesn't exist yet)
         const { data: fallbackData } = await supabase.from('airlines').select('*').order('name');
         setAirlines(fallbackData || []);
       } else {
@@ -88,9 +121,18 @@ export const AirlinesView: React.FC = () => {
               <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform shadow-inner">
                 <span className="text-xl font-black text-brand-600">{airline.iata_code}</span>
               </div>
-              <button className="p-2 text-slate-300 hover:text-slate-900 transition-colors mr-10">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
+              <div className="flex gap-1 mr-10">
+                <button 
+                  onClick={() => { setEnrollAirline(airline); setFormData(prev => ({ ...prev, airlineId: airline.id })); setShowEnrollModal(true); }}
+                  className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="Enroll Manager"
+                >
+                  <Users className="w-4 h-4" />
+                </button>
+                <button className="p-2 text-slate-300 hover:text-slate-900 transition-colors">
+                  <MoreHorizontal className="w-5 h-5" />
+                </button>
+              </div>
             </div>
             
             <h3 className="text-lg font-black mb-1 font-display tracking-tight text-slate-900 truncate pr-4">{airline.name}</h3>
@@ -155,6 +197,7 @@ export const AirlinesView: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           whileHover={{ y: -5, borderColor: 'var(--brand-600)' }}
+          onClick={() => setShowEnrollModal(true)}
           className="bg-slate-50/50 border-2 border-dashed border-slate-200 min-h-[280px] rounded-[32px] flex flex-col items-center justify-center gap-4 group transition-all"
         >
           <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-md group-hover:scale-110 group-hover:bg-brand-600 group-hover:text-white transition-all">
@@ -167,7 +210,95 @@ export const AirlinesView: React.FC = () => {
         </motion.button>
       </div>
 
-      {/* Personnel Details Modal - Table Structure */}
+      {/* Enrollment Modal */}
+      <AnimatePresence>
+        {showEnrollModal && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowEnrollModal(false)} className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-md bg-white rounded-[32px] shadow-2xl p-8 overflow-hidden">
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Carrier Manager Enrollment</h3>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                      {enrollAirline ? enrollAirline.name : 'Select Carrier for Manager Provisioning'}
+                    </p>
+                  </div>
+                  <button onClick={() => setShowEnrollModal(false)} className="p-2 hover:bg-slate-100 rounded-xl">
+                    <X className="w-5 h-5 text-slate-400" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleEnroll} className="space-y-4">
+                  {!enrollAirline && (
+                    <div>
+                      <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Target Carrier</label>
+                      <select 
+                        required
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        value={formData.airlineId}
+                        onChange={e => setFormData({ ...formData, airlineId: e.target.value })}
+                      >
+                        <option value="">Select Airline...</option>
+                        {airlines.map(a => <option key={a.id} value={a.id}>{a.name} ({a.iata_code})</option>)}
+                      </select>
+                    </div>
+                  )}
+                  <div>
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Manager Full Name</label>
+                    <input 
+                      required
+                      type="text" 
+                      placeholder="e.g. Abdullah Al-Sabah"
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      value={formData.name}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Official Email</label>
+                    <input 
+                      required
+                      type="email" 
+                      placeholder="manager@carrier.com.kw"
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      value={formData.email}
+                      onChange={e => setFormData({ ...formData, email: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Contact Phone</label>
+                    <input 
+                      required
+                      type="tel" 
+                      placeholder="+965 2xxx xxxx"
+                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      value={formData.phone}
+                      onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex gap-3 mt-6">
+                    <ShieldCheck className="w-5 h-5 text-amber-600 shrink-0" />
+                    <p className="text-[10px] text-amber-800 font-bold leading-relaxed">
+                      Manager status will be set to <span className="underline">Verified</span>. Credentials will be dispatched to the provided email upon successful Auth Node release.
+                    </p>
+                  </div>
+
+                  <button 
+                    disabled={isSubmitting}
+                    className="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-brand-600/20 transition-all flex items-center justify-center gap-2 mt-4"
+                  >
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Enroll & Verify Manager'}
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {selectedPersonnel && (
           <div className="fixed inset-0 z-[250] flex items-center justify-center p-6">
