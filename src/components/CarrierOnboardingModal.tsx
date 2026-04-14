@@ -44,21 +44,21 @@ export const CarrierOnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen,
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl overflow-hidden border border-slate-200 dark:border-white/5"
+            className="relative w-full max-w-2xl bg-white rounded-[32px] shadow-2xl overflow-hidden border border-slate-200"
           >
-            <div className="flex items-center justify-between p-8 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between p-8 border-b border-slate-100">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-brand-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-brand-600/20">
                   <Plane className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black font-display tracking-tight text-slate-900 dark:text-white">Onboard New Carrier</h2>
+                  <h2 className="text-xl font-black font-display tracking-tight text-slate-900">Onboard New Carrier</h2>
                   <p className="text-xs text-slate-400 font-medium tracking-tight">System Protocol DGCA-VII2 Annex 10 Initiation.</p>
                 </div>
               </div>
               <button 
                 onClick={onClose}
-                className="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl transition-all"
+                className="p-2.5 bg-slate-100 text-slate-400 hover:text-slate-900 rounded-xl transition-all"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -73,7 +73,7 @@ export const CarrierOnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen,
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
                     placeholder="e.g. Qatar Airways"
-                    className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800 border-transparent rounded-[20px] text-sm font-semibold focus:bg-white dark:focus:bg-slate-700 ring-2 ring-transparent focus:ring-brand-500/20 transition-all outline-none border border-slate-100 dark:border-slate-800"
+                    className="w-full px-5 py-3.5 bg-slate-50 border-transparent rounded-[20px] text-sm font-semibold focus:bg-white ring-2 ring-transparent focus:ring-brand-500/20 transition-all outline-none border border-slate-100"
                   />
                 </div>
                 <div className="space-y-2">
@@ -84,12 +84,12 @@ export const CarrierOnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen,
                     value={formData.iata_code}
                     onChange={e => setFormData({...formData, iata_code: e.target.value.toUpperCase()})}
                     placeholder="e.g. QR"
-                    className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800 border-transparent rounded-[20px] text-sm font-semibold focus:bg-white dark:focus:bg-slate-700 ring-2 ring-transparent focus:ring-brand-500/20 transition-all outline-none border border-slate-100 dark:border-slate-800"
+                    className="w-full px-5 py-3.5 bg-slate-50 border-transparent rounded-[20px] text-sm font-semibold focus:bg-white ring-2 ring-transparent focus:ring-brand-500/20 transition-all outline-none border border-slate-100"
                   />
                 </div>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-[24px] border border-slate-100 dark:border-slate-800 space-y-6">
+              <div className="bg-slate-50 p-6 rounded-[24px] border border-slate-100 space-y-6">
                 <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
                   <Info className="w-3.5 h-3.5" />
                   Default Billing Parameters
@@ -102,7 +102,7 @@ export const CarrierOnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen,
                       step="0.001"
                       value={formData.pax_rate}
                       onChange={e => setFormData({...formData, pax_rate: e.target.value})}
-                      className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold focus:border-brand-500 outline-none"
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:border-brand-500 outline-none"
                     />
                   </div>
                   <div className="space-y-2 text-left">
@@ -111,15 +111,15 @@ export const CarrierOnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen,
                       type="number"
                       value={formData.workstation_rate}
                       onChange={e => setFormData({...formData, workstation_rate: e.target.value})}
-                      className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold focus:border-brand-500 outline-none"
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold focus:border-brand-500 outline-none"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-orange-50 dark:bg-orange-500/5 p-4 rounded-xl border border-orange-100 dark:border-orange-500/20 flex gap-3 items-start">
+              <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 flex gap-3 items-start">
                  <AlertCircle className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
-                 <p className="text-[11px] text-orange-700 dark:text-orange-400 leading-relaxed font-medium">
+                 <p className="text-[11px] text-orange-700 leading-relaxed font-medium">
                    Onboarding initiates the "14-day deemed acceptance" clause per Annex 10. The carrier will be notified via the integration gateway.
                  </p>
               </div>
@@ -128,7 +128,7 @@ export const CarrierOnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen,
                 <button 
                   type="button"
                   onClick={onClose}
-                  className="flex-1 py-4 text-slate-500 font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-all"
+                  className="flex-1 py-4 text-slate-500 font-bold text-sm hover:bg-slate-100 rounded-2xl transition-all"
                 >
                   Cancel
                 </button>

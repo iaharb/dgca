@@ -46,7 +46,7 @@ export const DossierDrawer: React.FC<DossierDrawerProps> = ({ project, isOpen, o
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 z-[120] w-full max-w-xl bg-white dark:bg-slate-950 shadow-2xl overflow-y-auto custom-scrollbar"
+            className="fixed top-0 right-0 bottom-0 z-[120] w-full max-w-xl bg-white shadow-2xl overflow-y-auto custom-scrollbar"
           >
             <div className="p-10">
               <div className="flex items-center justify-between mb-12">
@@ -55,13 +55,13 @@ export const DossierDrawer: React.FC<DossierDrawerProps> = ({ project, isOpen, o
                     <Plane className="w-8 h-8" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-black font-display tracking-tight text-slate-900 dark:text-white uppercase">Integration Dossier</h2>
+                    <h2 className="text-2xl font-black font-display tracking-tight text-slate-900 uppercase">Integration Dossier</h2>
                     <p className="text-xs text-slate-400 font-bold tracking-widest uppercase">Node: KWI-01 / Ref: {project.iata}-{project.id}</p>
                   </div>
                 </div>
                 <button 
                   onClick={onClose}
-                  className="p-3 bg-slate-100 dark:bg-slate-900 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-2xl transition-all"
+                  className="p-3 bg-slate-100 text-slate-400 hover:text-slate-900 rounded-2xl transition-all"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -70,9 +70,9 @@ export const DossierDrawer: React.FC<DossierDrawerProps> = ({ project, isOpen, o
               <div className="space-y-10">
                 <section className="space-y-4">
                   <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Primary Operator</h3>
-                  <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-[28px] border border-slate-100 dark:border-white/5 flex items-center justify-between">
+                  <div className="bg-slate-50 p-6 rounded-[28px] border border-slate-100 flex items-center justify-between">
                     <div>
-                      <p className="text-xl font-black text-slate-900 dark:text-white">{project.airline}</p>
+                      <p className="text-xl font-black text-slate-900">{project.airline}</p>
                       <p className="text-xs text-slate-400 font-medium">Carrier IATA: {project.iata} • Current Progress: {currentProgress}%</p>
                     </div>
                     <div className="bg-brand-600/10 text-brand-600 text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest border border-brand-600/20">
@@ -88,13 +88,13 @@ export const DossierDrawer: React.FC<DossierDrawerProps> = ({ project, isOpen, o
                        const status = getStatusForStage(i);
                        const isAgreementStage = item.id === 'Agreement Sent';
                        return (
-                        <div key={i} className={`p-5 bg-white dark:bg-slate-900 border ${status === 'Active' ? 'border-brand-500 shadow-lg shadow-brand-500/10' : 'border-slate-100 dark:border-slate-800'} rounded-2xl flex items-center justify-between transition-all`}>
+                        <div key={i} className={`p-5 bg-white border ${status === 'Active' ? 'border-brand-500 shadow-lg shadow-brand-500/10' : 'border-slate-100'} rounded-2xl flex items-center justify-between transition-all`}>
                            <div className="flex items-center gap-4">
                             <div className={`${item.bg} w-12 h-12 rounded-xl flex items-center justify-center`}>
                                <item.icon className={`w-6 h-6 ${item.color}`} />
                             </div>
                             <div>
-                               <p className="text-sm font-black text-slate-900 dark:text-white">{item.id}</p>
+                               <p className="text-sm font-black text-slate-900">{item.id}</p>
                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                                  {isAgreementStage && status === 'Completed' ? 'V-Portal Verified' : item.role}
                                </p>
@@ -127,18 +127,18 @@ export const DossierDrawer: React.FC<DossierDrawerProps> = ({ project, isOpen, o
                        { name: 'SLA & Support Terms', type: 'PDF', size: '4.2MB', ref: 'DGCA-REF-112' },
                        { name: 'Hardware Config Specs', type: 'DOCX', size: '940KB', ref: 'DGCA-REF-201' },
                      ].map((doc, i) => (
-                       <div key={i} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl flex items-center justify-between group cursor-pointer border border-transparent hover:border-brand-500/20 hover:bg-white dark:hover:bg-slate-900 transition-all">
+                       <div key={i} className="p-4 bg-slate-50 rounded-2xl flex items-center justify-between group cursor-pointer border border-transparent hover:border-brand-500/20 hover:bg-white transition-all">
                           <div className="flex items-center gap-4">
-                             <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center border border-slate-100 dark:border-slate-800">
+                             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-slate-100">
                                 <FileText className="w-5 h-5 text-slate-400" />
                              </div>
                              <div>
-                                <p className="text-xs font-black text-slate-800 dark:text-slate-200">{doc.name}</p>
+                                <p className="text-xs font-black text-slate-800">{doc.name}</p>
                                 <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">{doc.ref} • {doc.type} • {doc.size}</p>
                              </div>
                           </div>
                           <div className="flex items-center gap-2">
-                             <button className="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 text-[9px] font-black uppercase rounded-lg hover:bg-brand-600 hover:text-white transition-all">Review</button>
+                             <button className="px-3 py-1.5 bg-slate-200 text-[9px] font-black uppercase rounded-lg hover:bg-brand-600 hover:text-white transition-all">Review</button>
                              <ExternalLink className="w-4 h-4 text-slate-300 group-hover:text-brand-600 transition-colors" />
                           </div>
                        </div>

@@ -371,8 +371,8 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
   return (
     <div className="space-y-6">
       {/* ── Ledger Table ─────────────────────────────────────── */}
-      <div className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm">
-        <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
+      <div className="bg-white rounded-[32px] border border-slate-200 overflow-hidden shadow-sm">
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <h3 className="text-xl font-black font-display tracking-tight uppercase">Master Agreements Ledger</h3>
             <p className="text-xs text-slate-400 font-medium">Official Annex 10 Governance Records.</p>
@@ -387,7 +387,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
 
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/30 dark:bg-slate-900/50">
+            <thead className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/30">
               <tr>
                 <th className="px-8 py-5">Carrier / Identity</th>
                 <th className="px-8 py-5">Version</th>
@@ -396,7 +396,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
                 <th className="px-8 py-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-slate-100">
               {agreements.map((ag) => {
                 const isSigned = ag.status === 'signed' || ag.status === 'active';
                 const isOpen   = openSignId === ag.id;
@@ -405,14 +405,14 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
                 return (
                   <React.Fragment key={ag.id}>
                     {/* ── Row ── */}
-                    <tr className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <tr className="group hover:bg-slate-50 transition-colors">
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center font-black text-brand-600">
+                          <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-black text-brand-600">
                             {ag.airlines?.iata_code}
                           </div>
                           <div>
-                            <span className="font-bold text-slate-900 dark:text-slate-100 block">{ag.airlines?.name}</span>
+                            <span className="font-bold text-slate-900 block">{ag.airlines?.name}</span>
                             {ag.signer_name && (
                               <span className="text-[10px] text-slate-400 font-medium">Signed by {ag.signer_name}</span>
                             )}
@@ -420,7 +420,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        <span className="text-xs font-black bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full text-slate-500">{ag.version}</span>
+                        <span className="text-xs font-black bg-slate-100 px-3 py-1 rounded-full text-slate-500">{ag.version}</span>
                       </td>
                       <td className="px-8 py-6 text-slate-500 text-sm font-medium">
                         <div className="flex items-center gap-2">

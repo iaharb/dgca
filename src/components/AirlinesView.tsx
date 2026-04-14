@@ -53,18 +53,18 @@ export const AirlinesView: React.FC = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-white dark:bg-slate-900 p-6 rounded-[28px] border border-slate-200 dark:border-white/5 shadow-sm group hover:shadow-xl transition-all"
+            className="bg-white p-6 rounded-[28px] border border-slate-200 shadow-sm group hover:shadow-xl transition-all"
           >
             <div className="flex items-start justify-between mb-6">
-              <div className="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center border border-slate-100 dark:border-slate-800 group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform">
                 <span className="text-lg font-black text-brand-600">{airline.iata_code}</span>
               </div>
-              <button className="p-2 text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+              <button className="p-2 text-slate-300 hover:text-slate-900 transition-colors">
                 < MoreHorizontal className="w-5 h-5" />
               </button>
             </div>
             
-            <h3 className="text-lg font-black mb-1 font-display tracking-tight text-slate-900 dark:text-white">{airline.name}</h3>
+            <h3 className="text-lg font-black mb-1 font-display tracking-tight text-slate-900">{airline.name}</h3>
             <div className="flex items-center gap-2 mb-4">
                {airline.status === 'active' ? (
                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 text-emerald-600 rounded text-[9px] font-black uppercase tracking-widest">
@@ -96,7 +96,7 @@ export const AirlinesView: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-slate-50 dark:border-slate-800">
+            <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-slate-50">
                <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fleet</p>
                   <p className="text-sm font-bold">{airline.fleet || 'N/A'}</p>
@@ -112,9 +112,9 @@ export const AirlinesView: React.FC = () => {
         <motion.button 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="bg-slate-50 dark:bg-slate-900/40 border-2 border-dashed border-slate-200 dark:border-slate-800 min-h-[220px] rounded-[28px] flex flex-col items-center justify-center gap-4 group hover:border-brand-500/50 transition-colors"
+          className="bg-slate-50 border-2 border-dashed border-slate-200 min-h-[220px] rounded-[28px] flex flex-col items-center justify-center gap-4 group hover:border-brand-500/50 transition-colors"
         >
-          <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
              <Users className="w-6 h-6 text-slate-400 group-hover:text-brand-600" />
           </div>
           <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Enroll New End-User</span>
