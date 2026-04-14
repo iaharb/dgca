@@ -12,9 +12,13 @@ import { Login } from './components/Login';
 import { UserManual } from './components/UserManual';
 import { InvoicingView } from './components/InvoicingView';
 import { PaymentsView } from './components/PaymentsView';
+import { ConsumablesDashboard } from './components/ConsumablesDashboard';
 import { PredictiveAnalytics } from './components/PredictiveAnalytics';
 import { seedDemoData } from './utils/seed-demo-data';
 import { seedOperationalData } from './utils/seed-operational-data';
+import { OnboardingPublicPortal } from './components/OnboardingPublicPortal';
+import { OnboardingPipelineView } from './components/OnboardingPipelineView';
+import { CarrierWorkflowView } from './components/CarrierWorkflowView';
 import { NotificationBell } from './components/NotificationBell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -43,7 +47,7 @@ import { supabase } from './lib/supabase';
 
 function App() {
   // ── Hash-based routing helpers ────────────────────────────────────────────
-  const VALID_TABS = ['dashboard','financial','airlines','agreements','invoicing','payments','simulation','analytics','manual'];
+  const VALID_TABS = ['dashboard','financial','airlines','agreements','invoicing','payments','consumables','onboarding','simulation','analytics','manual'];
   const hashToTab = () => {
     const h = window.location.hash.replace('#', '');
     return VALID_TABS.includes(h) ? h : 'dashboard';
@@ -115,6 +119,8 @@ function App() {
     { id: 'agreements', icon: FileText,          label: 'Ledger',           roles: ['dgca', 'carrier', 'operations_partner'] },
     { id: 'invoicing',  icon: Receipt,           label: 'Invoicing',        roles: ['dgca', 'carrier', 'operations_partner'] },
     { id: 'payments',   icon: Banknote,          label: 'Payments',         roles: ['dgca', 'operations_partner'] },
+    { id: 'consumables', icon: Package,           label: 'Consumables',      roles: ['dgca', 'carrier', 'operations_partner'] },
+    { id: 'onboarding',  icon: Zap,               label: 'Onboarding',       roles: ['dgca', 'operations_partner'] },
     { id: 'simulation', icon: Radio,             label: 'Simulator',        roles: ['dgca', 'operations_partner'] },
     { id: 'analytics',  icon: Sparkles,          label: 'Predictive RMS',   roles: ['dgca', 'operations_partner'] },
     { id: 'manual',     icon: BookOpen,          label: 'User Manual',      roles: ['dgca', 'carrier', 'operations_partner'] },
@@ -131,6 +137,12 @@ function App() {
   };
 
   if (isInitiated === null) return <div className="h-screen w-screen bg-slate-50 flex items-center justify-center font-bold text-slate-400 uppercase tracking-widest text-xs">Authenticating Node...</div>;
+
+  // Handle Public Onboarding Portal
+  if (window.location.pathname === '/onboarding/june-2026') {
+     return <OnboardingPublicPortal />;
+  }
+
   if (!isInitiated) return <PortalInitiation onInitiated={handleInitiate} />;
   if (!session || !profile) return <Login />;
 
@@ -278,22 +290,30 @@ function App() {
 
            <AnimatePresence mode="wait">
              <motion.div key={`${activeTab}-${refreshKey}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-               {activeTab === 'dashboard' && (
-                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
-                     <div className="xl:col-span-2 space-y-10">
-                       <IntegrationPipeline onSelectProject={(p: any) => setSelectedProject(p)} userType={profile?.role} airlineCode={profile?.airline_code} />
-                       <FinancialMap userType={profile?.role} airlineCode={profile?.airline_code} />
-                    </div>
-                    <div className="space-y-10">
-                       <ConsumablesMonitor userType={profile?.role} airlineCode={profile?.airline_code} />
-                    </div>
-                 </div>
-               )}
+                {activeTab === 'dashboard' && (
+                  <div className="space-y-10">
+                    {profile?.role === 'carrier' && profile?.onboarding_status !== 'INTEGRATION_STAGE_1' ? (
+                       <CarrierWorkflowView airline={profile} />
+                    ) : (
+                      <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
+                          <div className="xl:col-span-2 space-y-10">
+                            <IntegrationPipeline onSelectProject={(p: any) => setSelectedProject(p)} userType={profile?.role} airlineCode={profile?.airline_code} />
+                            <FinancialMap userType={profile?.role} airlineCode={profile?.airline_code} />
+                         </div>
+                         <div className="space-y-10">
+                            <ConsumablesDashboard variant="widget" />
+                         </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                {activeTab === 'financial'  && <FinancialMap   userType={profile?.role} airlineCode={profile?.airline_code} />}
                {activeTab === 'airlines'   && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <AirlinesView />}
                {activeTab === 'agreements' && <AgreementsView userType={profile?.role} airlineCode={profile?.airline_code} />}
                {activeTab === 'invoicing'  && <InvoicingView  userType={profile?.role} airlineCode={profile?.airline_code} />}
                {activeTab === 'payments'   && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <PaymentsView userType={profile?.role} airlineCode={profile?.airline_code} />}
+               {activeTab === 'consumables' && <ConsumablesDashboard />}
+               {activeTab === 'onboarding'  && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <OnboardingPipelineView />}
                {activeTab === 'simulation' && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <AODBControlCenter />}
                {activeTab === 'analytics'  && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <PredictiveAnalytics userType={profile?.role} />}
                {activeTab === 'manual'     && <UserManual userType={profile?.role} />}
