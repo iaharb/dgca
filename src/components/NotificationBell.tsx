@@ -186,7 +186,10 @@ export const NotificationBell: React.FC = () => {
               </div>
 
               <div className="p-4 bg-slate-50 text-center">
-                <button className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors flex items-center justify-center gap-1 mx-auto">
+                <button 
+                  onClick={() => { window.location.hash = '#onboarding'; setIsOpen(false); }}
+                  className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors flex items-center justify-center gap-1 mx-auto"
+                >
                   View Full Governance Logs <ChevronRight className="w-3 h-3" />
                 </button>
               </div>

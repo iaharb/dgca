@@ -128,9 +128,27 @@ export const OnboardingPipelineView: React.FC = () => {
                 <Users className="w-5 h-5 text-blue-600" />
                 <h3 className="font-bold text-slate-900">Entrance Applications</h3>
              </div>
-             <button onClick={fetchData} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
-                <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-             </button>
+             <div className="flex items-center gap-2">
+                <button 
+                  onClick={async () => {
+                    await supabase.from('onboarding_requests').insert({
+                      full_name: 'Ihab Harb',
+                      official_email: 'ihab@jazeeraairways.com',
+                      phone: '+965 9000 0000',
+                      airline_name: 'Jazeera Airways',
+                      iata_code: 'J9',
+                      job_title: 'Manager'
+                    });
+                    fetchData();
+                  }}
+                  className="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors"
+                >
+                   Simulate Intake
+                </button>
+                <button onClick={fetchData} className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
+                   <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                </button>
+             </div>
           </div>
           
           <div className="overflow-x-auto">
