@@ -131,14 +131,16 @@ export const OnboardingPipelineView: React.FC = () => {
              <div className="flex items-center gap-2">
                 <button 
                   onClick={async () => {
-                    await supabase.from('onboarding_requests').insert({
-                      full_name: 'Ihab Harb',
-                      official_email: 'ihab@jazeeraairways.com',
-                      phone: '+965 9000 0000',
-                      airline_name: 'Jazeera Airways',
-                      iata_code: 'J9',
-                      job_title: 'Manager'
-                    });
+                    const MOCK_AIRLINES = [
+                      { full_name: 'Ihab Harb', official_email: 'ihab@jazeeraairways.com', phone: '+965 9000 0000', airline_name: 'Jazeera Airways', iata_code: 'J9', job_title: 'Manager' },
+                      { full_name: 'John Doe', official_email: 'john@emirates.com', phone: '+971 4000 0000', airline_name: 'Emirates', iata_code: 'EK', job_title: 'Director' },
+                      { full_name: 'Jane Smith', official_email: 'jane@etihad.com', phone: '+971 2000 0000', airline_name: 'Etihad Airways', iata_code: 'EY', job_title: 'VP Operations' },
+                      { full_name: 'Ali Hassan', official_email: 'ali@saudia.com', phone: '+966 1000 0000', airline_name: 'Saudia', iata_code: 'SV', job_title: 'Integration Lead' },
+                      { full_name: 'Sarah Jones', official_email: 'sarah@britishairways.com', phone: '+44 20 7000 0000', airline_name: 'British Airways', iata_code: 'BA', job_title: 'Network Planning' }
+                    ];
+                    const intake = MOCK_AIRLINES[Math.floor(Math.random() * MOCK_AIRLINES.length)];
+                    
+                    await supabase.from('onboarding_requests').insert(intake);
                     fetchData();
                   }}
                   className="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors"

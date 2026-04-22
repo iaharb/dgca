@@ -181,7 +181,25 @@ export const CarrierWorkflowView: React.FC<{ airline: any }> = ({ airline }) => 
                     <button className="bg-white/10 border border-white/20 text-white font-bold px-8 py-4 rounded-xl hover:bg-white/20 transition-all flex items-center gap-2">
                        <Download className="w-4 h-4" /> Download PDF
                     </button>
-                    <button className="bg-white text-emerald-600 font-bold px-8 py-4 rounded-xl hover:bg-emerald-50 transition-all flex items-center gap-2">
+                    <button 
+                      disabled={loading}
+                      onClick={async () => {
+                         setLoading(true);
+                         try {
+                           const { error } = await supabase
+                             .from('carriers')
+                             .update({ onboarding_status: 'INTEGRATION_STAGE_1' })
+                             .eq('id', currentAirline.id);
+                           if (error) throw error;
+                           window.location.reload();
+                         } catch (err) {
+                           console.error(err);
+                         } finally {
+                           setLoading(false);
+                         }
+                      }}
+                      className="bg-white text-emerald-600 font-bold px-8 py-4 rounded-xl hover:bg-emerald-50 transition-all flex items-center gap-2 disabled:opacity-50"
+                    >
                        Proceed to Integration Stage I <ChevronRight className="w-4 h-4" />
                     </button>
                  </div>
