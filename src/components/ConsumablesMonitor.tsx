@@ -31,7 +31,7 @@ export const ConsumablesMonitor: React.FC<any> = ({ userType, airlineCode }) => 
 
       if (airlineCode && !isDGCA) {
         // Look up the airline's UUID first — PostgREST join-column filtering is unreliable
-        const { data: myAirline } = await supabase.from(\'carriers\').select('id').eq('iata_code', airlineCode).maybeSingle();
+        const { data: myAirline } = await supabase.from('carriers').select('id').eq('iata_code', airlineCode).maybeSingle();
         if (myAirline) query = query.eq('airline_id', myAirline.id);
       }
 

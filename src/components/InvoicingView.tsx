@@ -71,7 +71,7 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
         .order('period_month', { ascending: false });
 
       if (isCarrier && airlineCode) {
-        const { data: al } = await supabase.from(\'carriers\').select('id').eq('iata_code', airlineCode).single();
+        const { data: al } = await supabase.from('carriers').select('id').eq('iata_code', airlineCode).single();
         if (al) query = query.eq('airline_id', al.id);
       }
       const { data } = await query;

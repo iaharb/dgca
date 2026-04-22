@@ -132,7 +132,7 @@ export const ConsumablesDashboard: React.FC<{ variant?: 'full' | 'widget' }> = (
     setSimulating(true);
     try {
       // Get all airlines and inventory items
-      const { data: airlines } = await supabase.from(\'carriers\').select('id, iata_code');
+      const { data: airlines } = await supabase.from('carriers').select('id, iata_code');
       const { data: items } = await supabase.from('inventory_items').select('id');
 
       if (!airlines || !items || airlines.length === 0 || items.length === 0) return;
