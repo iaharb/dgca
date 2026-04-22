@@ -72,7 +72,7 @@ export const AirlinesView: React.FC = () => {
   const fetchAirlines = async () => {
     try {
       const { data, error } = await supabase
-        .from('airlines')
+        .from(\'carriers\')
         .select(`
           *,
           contacts:airline_contacts(*)
@@ -80,7 +80,7 @@ export const AirlinesView: React.FC = () => {
         .order('name');
       
       if (error) {
-        const { data: fallbackData } = await supabase.from('airlines').select('*').order('name');
+        const { data: fallbackData } = await supabase.from(\'carriers\').select('*').order('name');
         setAirlines(fallbackData || []);
       } else {
         setAirlines(data || []);

@@ -1,0 +1,7 @@
+R_DEF: Internal format may change without notice
+local
+color brand_600
+color brand_900
+color slate_50
+color slate_900
+color white

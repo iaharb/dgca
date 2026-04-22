@@ -1,0 +1,262 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.dgca.passengerflow"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:4:5-67
+11-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:4:22-64
+12    <uses-permission android:name="android.permission.CAMERA" />
+12-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:5:5-65
+12-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:5:22-62
+13    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+13-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:6:5-72
+13-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:6:22-69
+14
+15    <!-- suppress DeprecatedClassUsageInspection -->
+16    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+16-->[androidx.biometric:biometric:1.2.0-alpha05] C:\Users\Ehab Harb\.gradle\caches\transforms-3\1449fbc6ff3a44ba6a0da05c336da540\transformed\biometric-1.2.0-alpha05\AndroidManifest.xml:25:5-74
+16-->[androidx.biometric:biometric:1.2.0-alpha05] C:\Users\Ehab Harb\.gradle\caches\transforms-3\1449fbc6ff3a44ba6a0da05c336da540\transformed\biometric-1.2.0-alpha05\AndroidManifest.xml:25:22-71
+17
+18    <permission
+18-->[androidx.core:core:1.12.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\d9df576dcaca9e76e24725bc3e0fc475\transformed\core-1.12.0\AndroidManifest.xml:22:5-24:47
+19        android:name="com.dgca.passengerflow.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+19-->[androidx.core:core:1.12.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\d9df576dcaca9e76e24725bc3e0fc475\transformed\core-1.12.0\AndroidManifest.xml:23:9-81
+20        android:protectionLevel="signature" />
+20-->[androidx.core:core:1.12.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\d9df576dcaca9e76e24725bc3e0fc475\transformed\core-1.12.0\AndroidManifest.xml:24:9-44
+21
+22    <uses-permission android:name="com.dgca.passengerflow.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" /> <!-- Although the *SdkVersion is captured in gradle build files, this is required for non gradle builds -->
+22-->[androidx.core:core:1.12.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\d9df576dcaca9e76e24725bc3e0fc475\transformed\core-1.12.0\AndroidManifest.xml:26:5-97
+22-->[androidx.core:core:1.12.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\d9df576dcaca9e76e24725bc3e0fc475\transformed\core-1.12.0\AndroidManifest.xml:26:22-94
+23    <!-- <uses-sdk android:minSdkVersion="14"/> -->
+24    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+24-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2316c7eb294e879defbe8af0b30f8818\transformed\jetified-transport-backend-cct-2.3.3\AndroidManifest.xml:25:5-79
+24-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2316c7eb294e879defbe8af0b30f8818\transformed\jetified-transport-backend-cct-2.3.3\AndroidManifest.xml:25:22-76
+25
+26    <application
+26-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:8:5-20:19
+27        android:allowBackup="true"
+27-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:9:9-35
+28        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+28-->[androidx.core:core:1.12.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\d9df576dcaca9e76e24725bc3e0fc475\transformed\core-1.12.0\AndroidManifest.xml:28:18-86
+29        android:debuggable="true"
+30        android:extractNativeLibs="false"
+31        android:label="KWI Passenger Flow"
+31-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:10:9-43
+32        android:supportsRtl="true" >
+32-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:11:9-35
+33        <activity
+33-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:12:9-19:20
+34            android:name="com.dgca.passengerflow.MainActivity"
+34-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:13:13-41
+35            android:exported="true" >
+35-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:14:13-36
+36            <intent-filter>
+36-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:15:13-18:29
+37                <action android:name="android.intent.action.MAIN" />
+37-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:16:17-69
+37-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:16:25-66
+38
+39                <category android:name="android.intent.category.LAUNCHER" />
+39-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:17:17-77
+39-->C:\projects\dgca\mobile-app\app\src\main\AndroidManifest.xml:17:27-74
+40            </intent-filter>
+41        </activity>
+42        <activity
+42-->[androidx.compose.ui:ui-test-manifest:1.5.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\38b1dccb760361e40a22aa8895730c54\transformed\jetified-ui-test-manifest-1.5.0\AndroidManifest.xml:23:9-25:39
+43            android:name="androidx.activity.ComponentActivity"
+43-->[androidx.compose.ui:ui-test-manifest:1.5.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\38b1dccb760361e40a22aa8895730c54\transformed\jetified-ui-test-manifest-1.5.0\AndroidManifest.xml:24:13-63
+44            android:exported="true" />
+44-->[androidx.compose.ui:ui-test-manifest:1.5.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\38b1dccb760361e40a22aa8895730c54\transformed\jetified-ui-test-manifest-1.5.0\AndroidManifest.xml:25:13-36
+45        <activity
+45-->[androidx.compose.ui:ui-tooling-android:1.5.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\d3a8135f03ad7884d945cc8285f6829b\transformed\jetified-ui-tooling-release\AndroidManifest.xml:23:9-25:39
+46            android:name="androidx.compose.ui.tooling.PreviewActivity"
+46-->[androidx.compose.ui:ui-tooling-android:1.5.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\d3a8135f03ad7884d945cc8285f6829b\transformed\jetified-ui-tooling-release\AndroidManifest.xml:24:13-71
+47            android:exported="true" />
+47-->[androidx.compose.ui:ui-tooling-android:1.5.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\d3a8135f03ad7884d945cc8285f6829b\transformed\jetified-ui-tooling-release\AndroidManifest.xml:25:13-36
+48
+49        <service
+49-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\023ccde57c7109494f9813060de38034\transformed\jetified-play-services-mlkit-barcode-scanning-18.3.0\AndroidManifest.xml:9:9-15:19
+50            android:name="com.google.mlkit.common.internal.MlKitComponentDiscoveryService"
+50-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\023ccde57c7109494f9813060de38034\transformed\jetified-play-services-mlkit-barcode-scanning-18.3.0\AndroidManifest.xml:10:13-91
+51            android:directBootAware="true"
+51-->[com.google.mlkit:common:18.9.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\8393fe21ae35496f65e0cdff0636bb65\transformed\jetified-common-18.9.0\AndroidManifest.xml:17:13-43
+52            android:exported="false" >
+52-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\023ccde57c7109494f9813060de38034\transformed\jetified-play-services-mlkit-barcode-scanning-18.3.0\AndroidManifest.xml:11:13-37
+53            <meta-data
+53-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\023ccde57c7109494f9813060de38034\transformed\jetified-play-services-mlkit-barcode-scanning-18.3.0\AndroidManifest.xml:12:13-14:85
+54                android:name="com.google.firebase.components:com.google.mlkit.vision.barcode.internal.BarcodeRegistrar"
+54-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\023ccde57c7109494f9813060de38034\transformed\jetified-play-services-mlkit-barcode-scanning-18.3.0\AndroidManifest.xml:13:17-120
+55                android:value="com.google.firebase.components.ComponentRegistrar" />
+55-->[com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\023ccde57c7109494f9813060de38034\transformed\jetified-play-services-mlkit-barcode-scanning-18.3.0\AndroidManifest.xml:14:17-82
+56            <meta-data
+56-->[com.google.android.gms:play-services-mlkit-face-detection:17.0.1] C:\Users\Ehab Harb\.gradle\caches\transforms-3\da4b8a52b0b8bb41a5c15ab984011ff4\transformed\jetified-play-services-mlkit-face-detection-17.0.1\AndroidManifest.xml:12:13-14:85
+57                android:name="com.google.firebase.components:com.google.mlkit.vision.face.internal.FaceRegistrar"
+57-->[com.google.android.gms:play-services-mlkit-face-detection:17.0.1] C:\Users\Ehab Harb\.gradle\caches\transforms-3\da4b8a52b0b8bb41a5c15ab984011ff4\transformed\jetified-play-services-mlkit-face-detection-17.0.1\AndroidManifest.xml:13:17-114
+58                android:value="com.google.firebase.components.ComponentRegistrar" />
+58-->[com.google.android.gms:play-services-mlkit-face-detection:17.0.1] C:\Users\Ehab Harb\.gradle\caches\transforms-3\da4b8a52b0b8bb41a5c15ab984011ff4\transformed\jetified-play-services-mlkit-face-detection-17.0.1\AndroidManifest.xml:14:17-82
+59            <meta-data
+59-->[com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\af71cda9b726eeebb6ba2152b68d9eff\transformed\jetified-play-services-mlkit-text-recognition-common-19.0.0\AndroidManifest.xml:12:13-14:85
+60                android:name="com.google.firebase.components:com.google.mlkit.vision.text.internal.TextRegistrar"
+60-->[com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\af71cda9b726eeebb6ba2152b68d9eff\transformed\jetified-play-services-mlkit-text-recognition-common-19.0.0\AndroidManifest.xml:13:17-114
+61                android:value="com.google.firebase.components.ComponentRegistrar" />
+61-->[com.google.android.gms:play-services-mlkit-text-recognition-common:19.0.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\af71cda9b726eeebb6ba2152b68d9eff\transformed\jetified-play-services-mlkit-text-recognition-common-19.0.0\AndroidManifest.xml:14:17-82
+62            <meta-data
+62-->[com.google.mlkit:vision-common:17.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\a805e42985b43d8c4f376eb38e170b7f\transformed\jetified-vision-common-17.3.0\AndroidManifest.xml:12:13-14:85
+63                android:name="com.google.firebase.components:com.google.mlkit.vision.common.internal.VisionCommonRegistrar"
+63-->[com.google.mlkit:vision-common:17.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\a805e42985b43d8c4f376eb38e170b7f\transformed\jetified-vision-common-17.3.0\AndroidManifest.xml:13:17-124
+64                android:value="com.google.firebase.components.ComponentRegistrar" />
+64-->[com.google.mlkit:vision-common:17.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\a805e42985b43d8c4f376eb38e170b7f\transformed\jetified-vision-common-17.3.0\AndroidManifest.xml:14:17-82
+65            <meta-data
+65-->[com.google.mlkit:common:18.9.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\8393fe21ae35496f65e0cdff0636bb65\transformed\jetified-common-18.9.0\AndroidManifest.xml:20:13-22:85
+66                android:name="com.google.firebase.components:com.google.mlkit.common.internal.CommonComponentRegistrar"
+66-->[com.google.mlkit:common:18.9.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\8393fe21ae35496f65e0cdff0636bb65\transformed\jetified-common-18.9.0\AndroidManifest.xml:21:17-120
+67                android:value="com.google.firebase.components.ComponentRegistrar" />
+67-->[com.google.mlkit:common:18.9.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\8393fe21ae35496f65e0cdff0636bb65\transformed\jetified-common-18.9.0\AndroidManifest.xml:22:17-82
+68        </service>
+69
+70        <provider
+70-->[com.google.mlkit:common:18.9.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\8393fe21ae35496f65e0cdff0636bb65\transformed\jetified-common-18.9.0\AndroidManifest.xml:9:9-13:38
+71            android:name="com.google.mlkit.common.internal.MlKitInitProvider"
+71-->[com.google.mlkit:common:18.9.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\8393fe21ae35496f65e0cdff0636bb65\transformed\jetified-common-18.9.0\AndroidManifest.xml:10:13-78
+72            android:authorities="com.dgca.passengerflow.mlkitinitprovider"
+72-->[com.google.mlkit:common:18.9.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\8393fe21ae35496f65e0cdff0636bb65\transformed\jetified-common-18.9.0\AndroidManifest.xml:11:13-69
+73            android:exported="false"
+73-->[com.google.mlkit:common:18.9.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\8393fe21ae35496f65e0cdff0636bb65\transformed\jetified-common-18.9.0\AndroidManifest.xml:12:13-37
+74            android:initOrder="99" />
+74-->[com.google.mlkit:common:18.9.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\8393fe21ae35496f65e0cdff0636bb65\transformed\jetified-common-18.9.0\AndroidManifest.xml:13:13-35
+75
+76        <activity
+76-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\1bb9621c0623dd6b7d3d650cdd7b1f6d\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:20:9-22:45
+77            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+77-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\1bb9621c0623dd6b7d3d650cdd7b1f6d\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:20:19-85
+78            android:exported="false"
+78-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\1bb9621c0623dd6b7d3d650cdd7b1f6d\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:22:19-43
+79            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+79-->[com.google.android.gms:play-services-base:18.1.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\1bb9621c0623dd6b7d3d650cdd7b1f6d\transformed\jetified-play-services-base-18.1.0\AndroidManifest.xml:21:19-78
+80
+81        <meta-data
+81-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\b3d1be131b8d177ca0b0c06cc60e9704\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:21:9-23:69
+82            android:name="com.google.android.gms.version"
+82-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\b3d1be131b8d177ca0b0c06cc60e9704\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:22:13-58
+83            android:value="@integer/google_play_services_version" />
+83-->[com.google.android.gms:play-services-basement:18.1.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\b3d1be131b8d177ca0b0c06cc60e9704\transformed\jetified-play-services-basement-18.1.0\AndroidManifest.xml:23:13-66
+84
+85        <service
+85-->[androidx.camera:camera-camera2:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\e106d4195ee462bd66dbe5da5e61929c\transformed\jetified-camera-camera2-1.3.0\AndroidManifest.xml:24:9-33:19
+86            android:name="androidx.camera.core.impl.MetadataHolderService"
+86-->[androidx.camera:camera-camera2:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\e106d4195ee462bd66dbe5da5e61929c\transformed\jetified-camera-camera2-1.3.0\AndroidManifest.xml:25:13-75
+87            android:enabled="false"
+87-->[androidx.camera:camera-camera2:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\e106d4195ee462bd66dbe5da5e61929c\transformed\jetified-camera-camera2-1.3.0\AndroidManifest.xml:26:13-36
+88            android:exported="false" >
+88-->[androidx.camera:camera-camera2:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\e106d4195ee462bd66dbe5da5e61929c\transformed\jetified-camera-camera2-1.3.0\AndroidManifest.xml:27:13-37
+89            <meta-data
+89-->[androidx.camera:camera-camera2:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\e106d4195ee462bd66dbe5da5e61929c\transformed\jetified-camera-camera2-1.3.0\AndroidManifest.xml:30:13-32:89
+90                android:name="androidx.camera.core.impl.MetadataHolderService.DEFAULT_CONFIG_PROVIDER"
+90-->[androidx.camera:camera-camera2:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\e106d4195ee462bd66dbe5da5e61929c\transformed\jetified-camera-camera2-1.3.0\AndroidManifest.xml:31:17-103
+91                android:value="androidx.camera.camera2.Camera2Config$DefaultProvider" />
+91-->[androidx.camera:camera-camera2:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\e106d4195ee462bd66dbe5da5e61929c\transformed\jetified-camera-camera2-1.3.0\AndroidManifest.xml:32:17-86
+92        </service>
+93
+94        <provider
+94-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\566ab4f9474d6deb7575ebebffac3c5d\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:24:9-32:20
+95            android:name="androidx.startup.InitializationProvider"
+95-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\566ab4f9474d6deb7575ebebffac3c5d\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:25:13-67
+96            android:authorities="com.dgca.passengerflow.androidx-startup"
+96-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\566ab4f9474d6deb7575ebebffac3c5d\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:26:13-68
+97            android:exported="false" >
+97-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\566ab4f9474d6deb7575ebebffac3c5d\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:27:13-37
+98            <meta-data
+98-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\566ab4f9474d6deb7575ebebffac3c5d\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:29:13-31:52
+99                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+99-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\566ab4f9474d6deb7575ebebffac3c5d\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:30:17-75
+100                android:value="androidx.startup" />
+100-->[androidx.emoji2:emoji2:1.4.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\566ab4f9474d6deb7575ebebffac3c5d\transformed\jetified-emoji2-1.4.0\AndroidManifest.xml:31:17-49
+101            <meta-data
+101-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Ehab Harb\.gradle\caches\transforms-3\ab6ae78f9a69fb384e9fa752f3c6881b\transformed\jetified-lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+102                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+102-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Ehab Harb\.gradle\caches\transforms-3\ab6ae78f9a69fb384e9fa752f3c6881b\transformed\jetified-lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+103                android:value="androidx.startup" />
+103-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\Ehab Harb\.gradle\caches\transforms-3\ab6ae78f9a69fb384e9fa752f3c6881b\transformed\jetified-lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+104            <meta-data
+104-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+105                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+105-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+106                android:value="androidx.startup" />
+106-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+107        </provider>
+108
+109        <service
+109-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2316c7eb294e879defbe8af0b30f8818\transformed\jetified-transport-backend-cct-2.3.3\AndroidManifest.xml:29:9-35:19
+110            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+110-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2316c7eb294e879defbe8af0b30f8818\transformed\jetified-transport-backend-cct-2.3.3\AndroidManifest.xml:30:13-103
+111            android:exported="false" >
+111-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2316c7eb294e879defbe8af0b30f8818\transformed\jetified-transport-backend-cct-2.3.3\AndroidManifest.xml:31:13-37
+112            <meta-data
+112-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2316c7eb294e879defbe8af0b30f8818\transformed\jetified-transport-backend-cct-2.3.3\AndroidManifest.xml:32:13-34:39
+113                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+113-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2316c7eb294e879defbe8af0b30f8818\transformed\jetified-transport-backend-cct-2.3.3\AndroidManifest.xml:33:17-94
+114                android:value="cct" />
+114-->[com.google.android.datatransport:transport-backend-cct:2.3.3] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2316c7eb294e879defbe8af0b30f8818\transformed\jetified-transport-backend-cct-2.3.3\AndroidManifest.xml:34:17-36
+115        </service>
+116        <service
+116-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2a998e35a88bbfbf226818a3d5af723a\transformed\jetified-transport-runtime-2.2.6\AndroidManifest.xml:26:9-30:19
+117            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+117-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2a998e35a88bbfbf226818a3d5af723a\transformed\jetified-transport-runtime-2.2.6\AndroidManifest.xml:27:13-117
+118            android:exported="false"
+118-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2a998e35a88bbfbf226818a3d5af723a\transformed\jetified-transport-runtime-2.2.6\AndroidManifest.xml:28:13-37
+119            android:permission="android.permission.BIND_JOB_SERVICE" >
+119-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2a998e35a88bbfbf226818a3d5af723a\transformed\jetified-transport-runtime-2.2.6\AndroidManifest.xml:29:13-69
+120        </service>
+121
+122        <receiver
+122-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2a998e35a88bbfbf226818a3d5af723a\transformed\jetified-transport-runtime-2.2.6\AndroidManifest.xml:32:9-34:40
+123            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+123-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2a998e35a88bbfbf226818a3d5af723a\transformed\jetified-transport-runtime-2.2.6\AndroidManifest.xml:33:13-132
+124            android:exported="false" />
+124-->[com.google.android.datatransport:transport-runtime:2.2.6] C:\Users\Ehab Harb\.gradle\caches\transforms-3\2a998e35a88bbfbf226818a3d5af723a\transformed\jetified-transport-runtime-2.2.6\AndroidManifest.xml:34:13-37
+125        <receiver
+125-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+126            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+126-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+127            android:directBootAware="false"
+127-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+128            android:enabled="true"
+128-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+129            android:exported="true"
+129-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+130            android:permission="android.permission.DUMP" >
+130-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+131            <intent-filter>
+131-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+132                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+132-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+132-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+133            </intent-filter>
+134            <intent-filter>
+134-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+135                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+135-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+135-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+136            </intent-filter>
+137            <intent-filter>
+137-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+138                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+138-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+138-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+139            </intent-filter>
+140            <intent-filter>
+140-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+141                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+141-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+141-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\Ehab Harb\.gradle\caches\transforms-3\438cca632653b6268d35f5698de61ddc\transformed\jetified-profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+142            </intent-filter>
+143        </receiver>
+144    </application>
+145
+146</manifest>

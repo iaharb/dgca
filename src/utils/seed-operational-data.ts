@@ -46,7 +46,7 @@ export const seedOperationalData = async () => {
     const gateIds = gateRecords?.map(r => r.id) || [];
 
     // 4. SEED FLIGHTS & ALLOCATIONS (2 airlines x 4 months)
-    const { data: airlines } = await supabase.from('airlines').select('id, iata_code').in('iata_code', ['KU', 'J9']);
+    const { data: airlines } = await supabase.from(\'carriers\').select('id, iata_code').in('iata_code', ['KU', 'J9']);
 
     if (airlines && gateIds.length > 0) {
       for (let month = 8; month <= 11; month++) {

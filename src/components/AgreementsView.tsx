@@ -137,7 +137,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
 
       if (userType === 'carrier' && airlineCode) {
         const { data: myAirline } = await supabase
-          .from('airlines').select('id').eq('iata_code', airlineCode).maybeSingle();
+          .from(\'carriers\').select('id').eq('iata_code', airlineCode).maybeSingle();
         if (myAirline) query = query.eq('airline_id', myAirline.id);
       }
 

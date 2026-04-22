@@ -11,11 +11,11 @@ export const seedDemoData = async () => {
   ];
 
   for (const airline of airlines) {
-    const { data: existingAirline } = await supabase.from('airlines').select('id').eq('iata_code', airline.iata_code).maybeSingle();
+    const { data: existingAirline } = await supabase.from('carriers').select('id').eq('iata_code', airline.iata_code).maybeSingle();
     let airlineId = existingAirline?.id;
 
     if (!airlineId) {
-      const { data: newAirline } = await supabase.from('airlines').insert(airline).select().single();
+      const { data: newAirline } = await supabase.from('carriers').insert(airline).select().single();
       airlineId = newAirline?.id;
     }
 

@@ -28,7 +28,7 @@ export const FinancialMap: React.FC<any> = ({ userType, airlineCode }) => {
 
       if (isAirline && airlineCode) {
         metricsQuery = metricsQuery.eq('airlines.iata_code', airlineCode);
-        const { data: airline } = await supabase.from('airlines').select('id').eq('iata_code', airlineCode).single();
+        const { data: airline } = await supabase.from(\'carriers\').select('id').eq('iata_code', airlineCode).single();
         if (airline) penaltyQuery = penaltyQuery.eq('airline_id', airline.id);
       }
 

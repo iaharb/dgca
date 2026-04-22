@@ -69,7 +69,7 @@ export const PaymentsView: React.FC<Props> = ({ userType, airlineCode }) => {
         .select('*, airlines(name, iata_code), invoices(period_month)')
         .order('created_at', { ascending: false });
       if (airlineCode) {
-        const { data: al } = await supabase.from('airlines').select('id').eq('iata_code', airlineCode).single();
+        const { data: al } = await supabase.from(\'carriers\').select('id').eq('iata_code', airlineCode).single();
         if (al) q = q.eq('airline_id', al.id);
       }
       const { data } = await q;
