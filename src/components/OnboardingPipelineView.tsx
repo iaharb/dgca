@@ -64,6 +64,26 @@ export const OnboardingPipelineView: React.FC = () => {
     }
   };
 
+  const handleReject = async (requestId: string) => {
+    try {
+      await supabase.from('onboarding_requests').update({ status: 'REJECTED' }).eq('id', requestId);
+      fetchData();
+    } catch (err) {
+      console.error('Rejection error:', err);
+    }
+  };
+
+  const handleRejectAll = async () => {
+    const pendingIds = requests.filter(r => r.status === 'PENDING_REQUEST').map(r => r.id);
+    if (!pendingIds.length) return;
+    try {
+      await supabase.from('onboarding_requests').update({ status: 'REJECTED' }).in('id', pendingIds);
+      fetchData();
+    } catch (err) {
+      console.error('Bulk rejection error:', err);
+    }
+  };
+
   const stats = [
     { label: 'Pending Requests', value: requests.filter(r => r.status === 'PENDING_REQUEST').length, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
     { label: 'Signed Contracts', value: carriers.filter(c => c.onboarding_status === 'AGREEMENT_SIGNED').length, icon: FileCheck2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
@@ -130,6 +150,12 @@ export const OnboardingPipelineView: React.FC = () => {
              </div>
              <div className="flex items-center gap-2">
                 <button 
+                  onClick={handleRejectAll}
+                  className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors mr-2"
+                >
+                   Clear All
+                </button>
+                <button 
                   onClick={async () => {
                     const MOCK_AIRLINES = [
                       { full_name: 'Ihab Harb', official_email: 'ihab@jazeeraairways.com', phone: '+965 9000 0000', airline_name: 'Jazeera Airways', iata_code: 'J9', job_title: 'Manager' },
@@ -160,7 +186,7 @@ export const OnboardingPipelineView: React.FC = () => {
                   <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Airline / IATA</th>
                   <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Registrant / Role</th>
                   <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
-                  <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Action</th>
+                  <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -185,10 +211,17 @@ export const OnboardingPipelineView: React.FC = () => {
                       <p className="text-xs font-bold text-slate-600 underline decoration-slate-200">{req.official_email}</p>
                       <p className="text-[10px] font-black text-slate-400 mt-1">{req.phone}</p>
                     </td>
-                    <td className="px-8 py-5">
+                    <td className="px-8 py-5 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                       <button 
+                        onClick={() => handleReject(req.id)}
+                        className="bg-white border border-slate-200 text-slate-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 p-2 rounded-xl transition-all shadow-sm"
+                        title="Reject Request"
+                       >
+                          <X className="w-4 h-4" />
+                       </button>
                        <button 
                         onClick={() => handleApprove(req)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-blue-600/20 transition-all opacity-0 group-hover:opacity-100"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-blue-600/20 transition-all"
                        >
                           Approve & Send Agreement <ChevronRight className="w-3 h-3" />
                        </button>
