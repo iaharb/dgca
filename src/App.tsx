@@ -154,51 +154,6 @@ function App() {
   if (!isInitiated) return <PortalInitiation onInitiated={handleInitiate} />;
   if (!session || !profile) return <Login />;
 
-  const performSync = async () => {
-    setIsSyncing(true);
-    await seedDemoData();
-    await seedOperationalData();
-    setRefreshKey(k => k + 1); // Forces all dashboard components to remount & refetch
-    setIsSyncing(false);
-  };
-
-  const triggerMEASatSignOff = async () => {
-    setIsSyncing(true);
-    try {
-      const { data: targetCarrier } = await supabase.from('carriers').select('id').eq('iata_code', 'ME').maybeSingle();
-      let airlineId = targetCarrier?.id;
-
-      if (!airlineId) {
-        const { data: newAirline } = await supabase.from('carriers').insert({
-          name: 'Middle East Airlines',
-          airline_name: 'Middle East Airlines',
-          iata_code: 'ME',
-          onboarding_status: 'INTEGRATION_STAGE_1'
-        }).select().single();
-        airlineId = newAirline?.id;
-      }
-
-      if (airlineId) {
-        const { data: agreement } = await supabase.from('agreements').select('id').eq('airline_id', airlineId).maybeSingle();
-        if (agreement) {
-          // ensure milestones exist, then mark sat_sign_off and certified
-          const milestones = ['sat_sign_off', 'certified'];
-          for (const m of milestones) {
-            await supabase.from('integration_milestones').upsert({
-              agreement_id: agreement.id,
-              milestone_type: m,
-              status: 'completed',
-              completed_at: new Date().toISOString()
-            }, { onConflict: 'agreement_id,milestone_type' });
-          }
-        }
-      }
-      setRefreshKey(k => k + 1);
-    } catch (e) {
-      console.error(e);
-    }
-    setIsSyncing(false);
-  };
 
   return (
     <div className="flex h-screen w-screen bg-slate-50 text-slate-900 overflow-hidden select-none">
@@ -234,28 +189,7 @@ function App() {
           ))}
         </nav>
 
-        <div className="p-4 space-y-2">
-           <button 
-             onClick={performSync}
-             disabled={isSyncing}
-             className="w-full flex items-center justify-center gap-2 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all"
-           >
-              <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
-              {isSyncing ? 'Syncing...' : 'Sync Global Nodes'}
-           </button>
-           
-           {profile?.role === 'dgca' && (
-             <button 
-               onClick={triggerMEASatSignOff}
-               disabled={isSyncing}
-               className="w-full flex items-center justify-center gap-2 py-3 bg-brand-50 hover:bg-brand-100 text-brand-600 border border-brand-100 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-               title="Force Middle East Airlines to SAT Sign-off"
-             >
-                <ShieldCheck className={`w-3 h-3 ${isSyncing ? 'animate-pulse' : ''}`} />
-                Toggle MEA SAT Sign-off
-             </button>
-           )}
-        </div>
+
 
         <div className="p-6 border-t border-slate-100">
            <div className="flex items-center gap-3">
