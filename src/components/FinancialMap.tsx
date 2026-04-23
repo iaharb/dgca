@@ -22,12 +22,12 @@ export const FinancialMap: React.FC<any> = ({ userType, airlineCode }) => {
     try {
       let metricsQuery = supabase
         .from('usage_metrics')
-        .select('*, airlines!inner(name, iata_code, status)')
-        .eq('airlines.status', 'active');
+        .select('*, carriers!inner(name, iata_code, status)')
+        .eq('carriers.status', 'active');
       let penaltyQuery = supabase.from('penalty_ledger').select('*');
 
       if (isAirline && airlineCode) {
-        metricsQuery = metricsQuery.eq('airlines.iata_code', airlineCode);
+        metricsQuery = metricsQuery.eq('carriers.iata_code', airlineCode);
         const { data: airline } = await supabase.from('carriers').select('id').eq('iata_code', airlineCode).single();
         if (airline) penaltyQuery = penaltyQuery.eq('airline_id', airline.id);
       }
@@ -110,10 +110,10 @@ export const FinancialMap: React.FC<any> = ({ userType, airlineCode }) => {
 
      // Initialize airlines
      rawMetrics.forEach(m => {
-        const d_iata = m.airlines?.iata_code || 'UNK';
+        const d_iata = m.carriers?.iata_code || 'UNK';
         if (!airlinesMap[d_iata]) {
            airlinesMap[d_iata] = { 
-               name: m.airlines?.name || 'Unknown', 
+               name: m.carriers?.name || 'Unknown', 
                iata: d_iata, 
                months: Array(visibleMonths.length).fill(0),
                total: 0
@@ -139,7 +139,7 @@ export const FinancialMap: React.FC<any> = ({ userType, airlineCode }) => {
          });
      } else {
          rawMetrics.forEach(m => {
-             const d_iata = m.airlines?.iata_code || 'UNK';
+             const d_iata = m.carriers?.iata_code || 'UNK';
              const bDate = m.billing_month; // YYYY-MM-01
              if (bDate.startsWith(currentYear.toString())) {
                  const monthStr = bDate.split('-')[1];

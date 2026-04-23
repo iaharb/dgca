@@ -20,6 +20,7 @@ import { OnboardingPublicPortal } from './components/OnboardingPublicPortal';
 import { OnboardingPipelineView } from './components/OnboardingPipelineView';
 import { CarrierWorkflowView } from './components/CarrierWorkflowView';
 import { SignaturePortal } from './components/SignaturePortal';
+import { EfficiencyMetrics } from './components/EfficiencyMetrics';
 import { NotificationBell } from './components/NotificationBell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -50,7 +51,7 @@ import { supabase } from './lib/supabase';
 
 function App() {
   // ── Hash-based routing helpers ────────────────────────────────────────────
-  const VALID_TABS = ['dashboard','financial','airlines','agreements','invoicing','payments','consumables','onboarding','simulation','analytics','manual'];
+  const VALID_TABS = ['dashboard','financial','efficiency','airlines','agreements','invoicing','payments','consumables','onboarding','simulation','analytics','manual'];
   const hashToTab = () => {
     const h = window.location.hash.replace('#', '');
     return VALID_TABS.includes(h) ? h : 'dashboard';
@@ -118,6 +119,7 @@ function App() {
   const menuItems = [
     { id: 'dashboard',  icon: LayoutDashboard, label: 'Pipeline Board',  roles: ['dgca', 'carrier', 'operations_partner'] },
     { id: 'financial',  icon: BarChart3,        label: 'Financial Health', roles: ['dgca', 'carrier', 'operations_partner'] },
+    { id: 'efficiency', icon: Zap,               label: 'Operational Efficiency', roles: ['dgca', 'carrier', 'operations_partner'] },
     { id: 'airlines',   icon: Users,            label: 'Directory',        roles: ['dgca', 'operations_partner'] },
     { id: 'agreements', icon: FileText,          label: 'Ledger',           roles: ['dgca', 'carrier', 'operations_partner'] },
     { id: 'invoicing',  icon: Receipt,           label: 'Invoicing',        roles: ['dgca', 'carrier', 'operations_partner'] },
@@ -262,6 +264,7 @@ function App() {
                   </div>
                 )}
                {activeTab === 'financial'  && <FinancialMap   userType={profile?.role} airlineCode={profile?.airline_code} />}
+               {activeTab === 'efficiency' && <EfficiencyMetrics airlineCode={profile?.airline_code} />}
                {activeTab === 'airlines'   && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <AirlinesView />}
                {activeTab === 'agreements' && <AgreementsView userType={profile?.role} airlineCode={profile?.airline_code} />}
                {activeTab === 'invoicing'  && <InvoicingView  userType={profile?.role} airlineCode={profile?.airline_code} />}

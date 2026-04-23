@@ -360,7 +360,7 @@ const CardBreakdownModal: React.FC<BreakdownProps> = ({ cardId, invoices, stats,
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {airlines.map(([iata, name]) => {
+              {carriers.map(([iata, name]) => {
                 const airlineInvoices = invoices.filter(i => i.carriers?.iata_code === iata);
                 const periodVals = periods.map(p => {
                   const inv = airlineInvoices.find(i => i.period_month === p);

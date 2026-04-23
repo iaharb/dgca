@@ -26,7 +26,7 @@ export const ConsumablesMonitor: React.FC<any> = ({ userType, airlineCode }) => 
       const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
       let query = supabase
         .from('usage_metrics')
-        .select('*, airlines!inner(name, iata_code)')  // !inner excludes orphaned/unknown rows
+        .select('*, carriers!inner(name, iata_code)')  // !inner excludes orphaned/unknown rows
         .eq('billing_month', currentMonth);
 
       if (airlineCode && !isDGCA) {
@@ -65,8 +65,8 @@ export const ConsumablesMonitor: React.FC<any> = ({ userType, airlineCode }) => 
     const airlineMap: Record<string, any> = {};
 
     rawMetrics.forEach(m => {
-      const iata = m.airlines?.iata_code || 'UNK';
-      const name = m.airlines?.name || 'Unknown';
+      const iata = m.carriers?.iata_code || 'UNK';
+      const name = m.carriers?.name || 'Unknown';
       const cons = m.consumables_usage || {};
       const item = cons[activeItem];
 

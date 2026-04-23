@@ -132,7 +132,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
     try {
       let query = supabase
         .from('agreements')
-        .select(`*, airlines(name, iata_code)`)
+        .select(`*, carriers(name, iata_code)`)
         .order('created_at', { ascending: false });
 
       if (userType === 'carrier' && airlineCode) {
@@ -153,7 +153,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
 
   /* ── Prefill sign form when panel opens ──────────────── */
   const openSignPanel = (ag: Agreement) => {
-    setSigCarrierName(ag.airlines?.name || '');
+    setSigCarrierName(ag.carriers?.name || '');
     setSigPersonName(ag.signer_name || '');
     setSigTitle(ag.signer_title || '');
     setSigDate(ag.signer_date || new Date().toISOString().slice(0, 10));
@@ -202,7 +202,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
       await supabase.from('notifications').insert({
         airline_id: ag?.airline_id,
         title: 'Annex 10 Agreement Signed',
-        message: `${ag?.airlines?.name} has electronically signed the agreement. Action Required: Provision Carrier Manager credentials.`,
+        message: `${ag?.carriers?.name} has electronically signed the agreement. Action Required: Provision Carrier Manager credentials.`,
         type: 'action_required',
         metadata: { agreement_id: openSignId, action: 'enroll_manager' }
       });
@@ -349,7 +349,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
 
   const handlePreview = (ag: Agreement) => {
     const html = buildAgreementHtml(
-      ag.airlines?.iata_code, ag.airlines?.name,
+      ag.carriers?.iata_code, ag.carriers?.name,
       ag.status === 'signed' || ag.status === 'active',
       ag.signer_name || undefined, ag.signer_title || undefined,
       ag.signer_date || undefined, ag.signature_data
@@ -410,7 +410,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
               {agreements.map((ag) => {
                 const isSigned = ag.status === 'signed' || ag.status === 'active';
                 const isOpen   = openSignId === ag.id;
-                const qrUrl    = inlineQrUrl(ag.airlines?.iata_code, isSigned);
+                const qrUrl    = inlineQrUrl(ag.carriers?.iata_code, isSigned);
 
                 return (
                   <React.Fragment key={ag.id}>
@@ -419,10 +419,10 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-black text-brand-600">
-                            {ag.airlines?.iata_code}
+                            {ag.carriers?.iata_code}
                           </div>
                           <div>
-                            <span className="font-bold text-slate-900 block">{ag.airlines?.name}</span>
+                            <span className="font-bold text-slate-900 block">{ag.carriers?.name}</span>
                             {ag.signer_name && (
                               <span className="text-[10px] text-slate-400 font-medium">Signed by {ag.signer_name}</span>
                             )}
@@ -464,7 +464,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
                             src={qrUrl}
                             alt="QR"
                             className="w-8 h-8 rounded border border-slate-200 opacity-60 hover:opacity-100 transition-opacity"
-                            title={`Verify: DGCA/KWI/ANX10/${ag.airlines?.iata_code}/2026`}
+                            title={`Verify: DGCA/KWI/ANX10/${ag.carriers?.iata_code}/2026`}
                           />
                           {/* Sign / Expand toggle — show for unsigned, or DGCA */}
                           {(!isSigned || userType === 'dgca') && (
@@ -523,7 +523,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
                                           Electronic Agreement Signing
                                         </h4>
                                         <p className="text-[10px] text-slate-400 font-bold">
-                                          DGCA/KWI/ANX10/{ag.airlines?.iata_code}/2026 — Legally binding under DGCA Directive KWI/2024/03
+                                          DGCA/KWI/ANX10/{ag.carriers?.iata_code}/2026 — Legally binding under DGCA Directive KWI/2024/03
                                         </p>
                                       </div>
                                       {/* Inline QR */}
@@ -645,7 +645,7 @@ export const AgreementsView: React.FC<AgreementsViewProps> = ({ userType, airlin
                                     <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-start gap-3 mb-5">
                                       <QrCode className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                                       <p className="text-[11px] font-bold text-blue-700">
-                                        Your electronic signature will be embedded in the agreement document with a QR verification code linked to reference <strong>DGCA/KWI/ANX10/{ag.airlines?.iata_code}/2026</strong>. This constitutes a legally binding submission under DGCA Directive KWI/2024/03.
+                                        Your electronic signature will be embedded in the agreement document with a QR verification code linked to reference <strong>DGCA/KWI/ANX10/{ag.carriers?.iata_code}/2026</strong>. This constitutes a legally binding submission under DGCA Directive KWI/2024/03.
                                       </p>
                                     </div>
 

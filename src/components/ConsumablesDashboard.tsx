@@ -74,17 +74,17 @@ export const ConsumablesDashboard: React.FC<{ variant?: 'full' | 'widget' }> = (
         .from('consumables_usage')
         .select(`
           quantity,
-          airlines (name, iata_code)
+          carriers (name, iata_code)
         `)
         .gte('usage_date', thirtyDaysAgo.toISOString().split('T')[0]);
 
       // Aggregate by airline
       const aggregated: Record<string, UsageData> = {};
       usageData?.forEach((u: any) => {
-        const iata = u.airlines?.iata_code || 'UNK';
+        const iata = u.carriers?.iata_code || 'UNK';
         if (!aggregated[iata]) {
           aggregated[iata] = {
-            airline_name: u.airlines?.name || 'Unknown',
+            airline_name: u.carriers?.name || 'Unknown',
             iata_code: iata,
             quantity: 0
           };

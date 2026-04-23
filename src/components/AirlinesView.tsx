@@ -53,7 +53,7 @@ export const AirlinesView: React.FC = () => {
       });
 
       // 2. Add an audit notification
-      const airlineName = airlines.find(a => a.id === formData.airlineId)?.name;
+      const airlineName = carriers.find(a => a.id === formData.airlineId)?.name;
       await supabase.from('notifications').insert({
         title: 'Carrier Manager Enrolled',
         message: `Manager ${formData.name} created for ${airlineName}. Credentials pending Auth Release.`,
@@ -103,7 +103,7 @@ export const AirlinesView: React.FC = () => {
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {airlines.map((airline, i) => (
+        {carriers.map((airline, i) => (
           <motion.div
             key={airline.id}
             initial={{ opacity: 0, y: 20 }}
@@ -242,7 +242,7 @@ export const AirlinesView: React.FC = () => {
                         onChange={e => setFormData({ ...formData, airlineId: e.target.value })}
                       >
                         <option value="">Select Airline...</option>
-                        {airlines.map(a => <option key={a.id} value={a.id}>{a.name} ({a.iata_code})</option>)}
+                        {carriers.map(a => <option key={a.id} value={a.id}>{a.name} ({a.iata_code})</option>)}
                       </select>
                     </div>
                   )}

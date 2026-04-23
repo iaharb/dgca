@@ -42,7 +42,7 @@ interface Payment {
   bank_reference?: string;
   notes?: string;
   created_at: string;
-  airlines?: { name: string; iata_code: string };
+  carriers?: { name: string; iata_code: string };
   invoices?: { period_month: string };
 }
 
@@ -66,7 +66,7 @@ export const PaymentsView: React.FC<Props> = ({ userType, airlineCode }) => {
     try {
       let q = supabase
         .from('payments')
-        .select('*, airlines(name, iata_code), invoices(period_month)')
+        .select('*, carriers(name, iata_code), invoices(period_month)')
         .order('created_at', { ascending: false });
       if (airlineCode) {
         const { data: al } = await supabase.from('carriers').select('id').eq('iata_code', airlineCode).single();
@@ -199,7 +199,7 @@ export const PaymentsView: React.FC<Props> = ({ userType, airlineCode }) => {
                       </div>
                       <p className="text-sm font-bold text-slate-900">{p.description}</p>
                       <p className="text-[10px] text-slate-500 mt-0.5">
-                        {p.airlines?.iata_code} • {periodLabel(p.invoices?.period_month)}
+                        {p.carriers?.iata_code} • {periodLabel(p.invoices?.period_month)}
                       </p>
                     </div>
                     <p className="text-xl font-black text-slate-900 ml-4 whitespace-nowrap">{fmt(+p.amount_kd)} <span className="text-[10px] font-bold text-slate-400">KD</span></p>
@@ -264,9 +264,9 @@ export const PaymentsView: React.FC<Props> = ({ userType, airlineCode }) => {
                       <td className="p-4">
                         <div className="flex items-center gap-2">
                           <div className="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center text-[9px] font-black text-blue-700">
-                            {p.airlines?.iata_code}
+                            {p.carriers?.iata_code}
                           </div>
-                          <span className="text-sm font-bold text-slate-700">{p.airlines?.name}</span>
+                          <span className="text-sm font-bold text-slate-700">{p.carriers?.name}</span>
                         </div>
                       </td>
                       <td className="p-4 text-sm text-slate-600 whitespace-nowrap">{periodLabel(p.invoices?.period_month)}</td>
@@ -371,8 +371,8 @@ const PaymentBreakdownModal: React.FC<PBProps> = ({ cardId, payments, onClose, p
   // Group by carrier
   const byCarrier: Record<string, { name: string; rows: Payment[]; total: number }> = {};
   filtered.forEach(p => {
-    const key = p.airlines?.iata_code || 'UNK';
-    if (!byCarrier[key]) byCarrier[key] = { name: p.airlines?.name || 'Unknown', rows: [], total: 0 };
+    const key = p.carriers?.iata_code || 'UNK';
+    if (!byCarrier[key]) byCarrier[key] = { name: p.carriers?.name || 'Unknown', rows: [], total: 0 };
     byCarrier[key].rows.push(p);
     byCarrier[key].total += +p.amount_kd;
   });
