@@ -42,7 +42,7 @@ interface Invoice {
   paid_at?: string;
   rejection_reason?: string;
   notes?: string;
-  airlines?: { name: string; iata_code: string };
+  carriers?: { name: string; iata_code: string };
 }
 
 interface Props { userType: string; airlineCode?: string }
@@ -67,7 +67,7 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
     try {
       let query = supabase
         .from('invoices')
-        .select('*, airlines(name, iata_code)')
+        .select('*, carriers(name, iata_code)')
         .order('period_month', { ascending: false });
 
       if (isCarrier && airlineCode) {
@@ -88,10 +88,10 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
     // Create pending payment records
     await supabase.from('payments').insert([
       { invoice_id: inv.id, airline_id: inv.airline_id, payment_type: 'revenue_dgca',
-        description: `DGCA 65% — ${inv.airlines?.name} ${periodLabel(inv.period_month)}`,
+        description: `DGCA 65% — ${inv.carriers?.name} ${periodLabel(inv.period_month)}`,
         amount_kd: inv.net_dgca_kd, direction: 'carrier_to_ops', status: 'approved' },
       { invoice_id: inv.id, airline_id: inv.airline_id, payment_type: 'revenue_ops',
-        description: `Ops 35% — ${inv.airlines?.name} ${periodLabel(inv.period_month)}`,
+        description: `Ops 35% — ${inv.carriers?.name} ${periodLabel(inv.period_month)}`,
         amount_kd: inv.net_ops_kd, direction: 'ops_to_dgca', status: 'approved' },
     ]);
     await fetchInvoices();
@@ -217,9 +217,9 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
                     <td className="p-4">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-[9px] font-black text-blue-700">
-                          {inv.airlines?.iata_code}
+                          {inv.carriers?.iata_code}
                         </div>
-                        <span className="text-sm font-bold text-slate-900 max-w-[130px] truncate">{inv.airlines?.name}</span>
+                        <span className="text-sm font-bold text-slate-900 max-w-[130px] truncate">{inv.carriers?.name}</span>
                       </div>
                     </td>
                     <td className="p-4 text-sm font-bold text-slate-700 whitespace-nowrap">{periodLabel(inv.period_month)}</td>
@@ -314,7 +314,7 @@ interface BreakdownProps {
 const CardBreakdownModal: React.FC<BreakdownProps> = ({ cardId, invoices, stats, onClose, periodLabel }) => {
   // Group by period_month, then by airline
   const periods = [...new Set(invoices.map(i => i.period_month))].sort();
-  const airlines = [...new Map(invoices.map(i => [i.airlines?.iata_code, i.airlines?.name])).entries()];
+  const airlines = [...new Map(invoices.map(i => [i.carriers?.iata_code, i.carriers?.name])).entries()];
 
   const getValue = (inv: Invoice) => {
     if (cardId === 'gross')  return +inv.gross_revenue_kd;
@@ -361,7 +361,7 @@ const CardBreakdownModal: React.FC<BreakdownProps> = ({ cardId, invoices, stats,
             </thead>
             <tbody className="divide-y divide-slate-50">
               {airlines.map(([iata, name]) => {
-                const airlineInvoices = invoices.filter(i => i.airlines?.iata_code === iata);
+                const airlineInvoices = invoices.filter(i => i.carriers?.iata_code === iata);
                 const periodVals = periods.map(p => {
                   const inv = airlineInvoices.find(i => i.period_month === p);
                   return inv ? getValue(inv) : null;
@@ -444,7 +444,7 @@ const InvoiceModal: React.FC<ModalProps> = ({ invoice, userType, processing, onC
               <FileText className="w-4 h-4 text-blue-600" />
               <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Tax Invoice • DGCA Kuwait</span>
             </div>
-            <h3 className="text-2xl font-black text-slate-900">{invoice.airlines?.name}</h3>
+            <h3 className="text-2xl font-black text-slate-900">{invoice.carriers?.name}</h3>
             <p className="text-sm font-bold text-slate-500 mt-0.5">{periodLabel(invoice.period_month)} — Service Period</p>
           </div>
           <div className="flex items-center gap-3">
