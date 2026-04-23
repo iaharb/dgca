@@ -33,18 +33,21 @@ BEGIN
     encrypted_pw := crypt('password123', gen_salt('bf'));
 
     INSERT INTO auth.users (
-      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, is_super_admin
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, 
+      raw_app_meta_data, raw_user_meta_data, is_super_admin, 
+      confirmation_token, recovery_token, email_change_token_new, email_change
     ) VALUES (
       '00000000-0000-0000-0000-000000000000', new_user_id, 'authenticated', 'authenticated', generated_email, encrypted_pw, now(), now(), now(), 
       '{"provider":"email","providers":["email"]}', 
       jsonb_build_object('first_name', split_part(req_record.full_name, ' ', 1), 'last_name', split_part(req_record.full_name, ' ', 2), 'role', 'carrier', 'airline_code', req_record.iata_code),
-      false
+      false, 
+      '', '', '', ''
     );
 
     INSERT INTO auth.identities (
       id, user_id, provider_id, identity_data, provider, created_at, updated_at
     ) VALUES (
-      new_user_id, new_user_id, new_user_id::text, jsonb_build_object('sub', new_user_id::text, 'email', generated_email), 'email', now(), now()
+      gen_random_uuid(), new_user_id, new_user_id::text, jsonb_build_object('sub', new_user_id::text, 'email', generated_email), 'email', now(), now()
     );
 
     INSERT INTO public.profiles (

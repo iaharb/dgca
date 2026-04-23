@@ -11,8 +11,8 @@ const USD_TO_KD = 0.308;
 
 const STATUS_CFG: Record<string, { label: string; color: string; bg: string; border: string }> = {
   draft:         { label: 'Draft',          color: 'text-slate-500',   bg: 'bg-slate-100',   border: 'border-slate-200'  },
-  submitted:     { label: 'Submitted',      color: 'text-blue-600',    bg: 'bg-blue-50',     border: 'border-blue-200'   },
-  dgca_approved: { label: 'DGCA Approved',  color: 'text-teal-600',    bg: 'bg-teal-50',     border: 'border-teal-200'   },
+  issued:        { label: 'Issued',         color: 'text-blue-600',    bg: 'bg-blue-50',     border: 'border-blue-200'   },
+  receivable:    { label: 'Receivable',     color: 'text-teal-600',    bg: 'bg-teal-50',     border: 'border-teal-200'   },
   paid:          { label: 'Paid',           color: 'text-emerald-600', bg: 'bg-emerald-50',  border: 'border-emerald-200'},
   rejected:      { label: 'Rejected',       color: 'text-red-600',     bg: 'bg-red-50',      border: 'border-red-200'    },
 };
@@ -79,18 +79,11 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
     } finally { setLoading(false); }
   };
 
-  const handleSubmit = async (inv: Invoice) => {
-    setProcessingId(inv.id);
-    await supabase.from('invoices').update({ status: 'submitted', submitted_at: new Date().toISOString() }).eq('id', inv.id);
-    await fetchInvoices();
-    setProcessingId(null);
-  };
-
-  const handleApprove = async (inv: Invoice) => {
+  const handleIssue = async (inv: Invoice) => {
     setProcessingId(inv.id);
     const { data: { user } } = await supabase.auth.getUser();
     await supabase.from('invoices').update({
-      status: 'dgca_approved', approved_at: new Date().toISOString(), approved_by: user?.id
+      status: 'issued', approved_at: new Date().toISOString(), approved_by: user?.id
     }).eq('id', inv.id);
     // Create pending payment records
     await supabase.from('payments').insert([
@@ -101,6 +94,14 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
         description: `Ops 35% — ${inv.airlines?.name} ${periodLabel(inv.period_month)}`,
         amount_kd: inv.net_ops_kd, direction: 'ops_to_dgca', status: 'approved' },
     ]);
+    await fetchInvoices();
+    setProcessingId(null);
+    setSelected(null);
+  };
+
+  const handleConfirm = async (inv: Invoice) => {
+    setProcessingId(inv.id);
+    await supabase.from('invoices').update({ status: 'receivable' }).eq('id', inv.id);
     await fetchInvoices();
     setProcessingId(null);
     setSelected(null);
@@ -127,7 +128,8 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
     ops:      invoices.reduce((a, i) => a + +i.net_ops_kd,      0),
     sna:      invoices.reduce((a, i) => a + +i.sna_deductions_kd, 0),
     late:     invoices.reduce((a, i) => a + +i.late_fees_kd,    0),
-    pending:  invoices.filter(i => i.status === 'submitted').length,
+    pending:  invoices.filter(i => i.status === 'draft').length,
+    issued:   invoices.filter(i => i.status === 'issued').length,
   };
 
   if (loading) return (
@@ -165,14 +167,22 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
         <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
           <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
           <p className="text-sm font-bold text-amber-800">
-            {stats.pending} invoice{stats.pending !== 1 ? 's' : ''} awaiting your DGCA approval
+            {stats.pending} draft invoice{stats.pending !== 1 ? 's' : ''} awaiting your DGCA review
+          </p>
+        </div>
+      )}
+      {isCarrier && stats.issued > 0 && (
+        <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+          <AlertCircle className="w-5 h-5 text-blue-600 shrink-0" />
+          <p className="text-sm font-bold text-blue-800">
+            {stats.issued} issued invoice{stats.issued !== 1 ? 's' : ''} awaiting your confirmation
           </p>
         </div>
       )}
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2">
-        {(['all','draft','submitted','dgca_approved','paid','rejected'] as const).map(s => (
+        {(['all','draft','issued','receivable','paid','rejected'] as const).map(s => (
           <button key={s} onClick={() => setFilterStatus(s)}
             className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
               filterStatus === s ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-400'
@@ -239,17 +249,16 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
                           className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
                           <Eye className="w-3.5 h-3.5 text-slate-600" />
                         </button>
-                        {isOps && inv.status === 'draft' && (
-                          <button onClick={() => handleSubmit(inv)} disabled={processingId === inv.id}
-                            className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center gap-1">
-                            {processingId === inv.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
-                            Submit
-                          </button>
-                        )}
-                        {isDGCA && inv.status === 'submitted' && (
+                        {isDGCA && inv.status === 'draft' && (
                           <button onClick={() => setSelected(inv)}
                             className="px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all">
                             Review
+                          </button>
+                        )}
+                        {isCarrier && inv.status === 'issued' && (
+                          <button onClick={() => setSelected(inv)}
+                            className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all">
+                            Confirm
                           </button>
                         )}
                       </div>
@@ -274,7 +283,8 @@ export const InvoicingView: React.FC<Props> = ({ userType, airlineCode }) => {
             userType={userType}
             processing={processingId === selected.id}
             onClose={() => setSelected(null)}
-            onApprove={() => handleApprove(selected)}
+            onApprove={() => handleIssue(selected)}
+            onConfirm={() => handleConfirm(selected)}
             onReject={(r) => handleReject(selected, r)}
             periodLabel={periodLabel}
           />
@@ -395,11 +405,11 @@ const CardBreakdownModal: React.FC<BreakdownProps> = ({ cardId, invoices, stats,
 // ─────────────────────────────────────────────────────────────────────────────
 interface ModalProps {
   invoice: Invoice; userType: string; processing: boolean;
-  onClose: () => void; onApprove: () => void;
+  onClose: () => void; onApprove: () => void; onConfirm: () => void;
   onReject: (r: string) => void; periodLabel: (d: string) => string;
 }
 
-const InvoiceModal: React.FC<ModalProps> = ({ invoice, userType, processing, onClose, onApprove, onReject, periodLabel }) => {
+const InvoiceModal: React.FC<ModalProps> = ({ invoice, userType, processing, onClose, onApprove, onConfirm, onReject, periodLabel }) => {
   const [showReject, setShowReject] = useState(false);
   const [reason,     setReason]     = useState('');
   const isDGCA = userType === 'dgca';
@@ -526,12 +536,12 @@ const InvoiceModal: React.FC<ModalProps> = ({ invoice, userType, processing, onC
           </div>
 
           {/* DGCA Actions */}
-          {isDGCA && invoice.status === 'submitted' && !showReject && (
+          {isDGCA && invoice.status === 'draft' && !showReject && (
             <div className="flex gap-3 pt-2">
               <button onClick={onApprove} disabled={processing}
                 className="flex-1 py-4 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50">
                 {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                Approve & Release Payments
+                Approve & Issue Invoice
               </button>
               <button onClick={() => setShowReject(true)}
                 className="flex-1 py-4 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all">
@@ -539,7 +549,7 @@ const InvoiceModal: React.FC<ModalProps> = ({ invoice, userType, processing, onC
               </button>
             </div>
           )}
-          {isDGCA && invoice.status === 'submitted' && showReject && (
+          {isDGCA && invoice.status === 'draft' && showReject && (
             <div className="space-y-3 pt-2">
               <textarea value={reason} onChange={e => setReason(e.target.value)} rows={3}
                 placeholder="Enter rejection reason (required)…"
@@ -554,6 +564,17 @@ const InvoiceModal: React.FC<ModalProps> = ({ invoice, userType, processing, onC
                   Cancel
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Carrier Actions */}
+          {isCarrier && invoice.status === 'issued' && (
+            <div className="flex gap-3 pt-2">
+              <button onClick={onConfirm} disabled={processing}
+                className="flex-1 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50">
+                {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                Confirm & Accept Receipt
+              </button>
             </div>
           )}
 
