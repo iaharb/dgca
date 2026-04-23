@@ -9,7 +9,10 @@ async function seed() {
   const users = [
     { email: 'iaharb+dgca@gmail.com', first_name: 'Yousif', last_name: 'Al-Hamad', role: 'dgca' },
     { email: 'iaharb+ops@gmail.com', first_name: 'Lead', last_name: 'Systems Architect', role: 'operations_partner' },
-    { email: 'iaharb+ku@gmail.com', first_name: 'Kuwait Airways', last_name: 'Admin', role: 'carrier', code: 'KU' }
+    { email: 'iaharb+ku@gmail.com', first_name: 'Kuwait Airways', last_name: 'Admin', role: 'carrier', code: 'KU' },
+    { email: 'iaharb+j9@gmail.com', first_name: 'Jazeera Airways', last_name: 'Admin', role: 'carrier', code: 'J9' },
+    { email: 'iaharb+qr@gmail.com', first_name: 'Qatar Airways', last_name: 'Admin', role: 'carrier', code: 'QR' },
+    { email: 'iaharb+me@gmail.com', first_name: 'Middle East Airlines', last_name: 'Admin', role: 'carrier', code: 'ME' }
   ];
   
   for (const u of users) {

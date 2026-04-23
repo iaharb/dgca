@@ -15,11 +15,11 @@ const seedDemoData = async () => {
   ];
 
   for (const airline of airlines) {
-    const { data: existingAirline } = await supabase.from('airlines').select('id').eq('iata_code', airline.iata_code).maybeSingle();
+    const { data: existingAirline } = await supabase.from('carriers').select('id').eq('iata_code', airline.iata_code).maybeSingle();
     let airlineId = existingAirline?.id;
 
     if (!airlineId) {
-      const { data: newAirline } = await supabase.from('airlines').insert(airline).select().single();
+      const { data: newAirline } = await supabase.from('carriers').insert(airline).select().single();
       airlineId = newAirline?.id;
     }
 
@@ -41,34 +41,36 @@ const seedDemoData = async () => {
 
       // 1.5 Sync SAT Milestones
       if (agreementId && airline.status === 'active') {
-         // Check if milestone exists to avoid duplication
          const { data: existingMs } = await supabase.from('integration_milestones')
            .select('id')
            .eq('agreement_id', agreementId)
            .eq('milestone_type', 'certified')
            .maybeSingle();
-           
+            
          if (!existingMs) {
             await supabase.from('integration_milestones').insert({
                 agreement_id: agreementId,
                 milestone_type: 'certified',
-                status: 'completed',  // UI looks for 'completed'
+                status: 'completed',
                 completed_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
             });
          }
       }
 
-      // Only seed usage metrics for active (certified) carriers
       if (airline.status !== 'active') {
         console.log(`[SEED] Skipping usage metrics for pending carrier ${airline.iata_code}`);
         continue;
       }
 
-      // 2. Force Sync Usage with Resource Data (To fix AWAITING SAT)
+      // 2. Sync Usage Metrics & Consumables
       const pax = airline.iata_code === 'KU' ? 14200 : (airline.iata_code === 'J9' ? 9500 : 7500);
       const desks = airline.iata_code === 'KU' ? 12 : (airline.iata_code === 'J9' ? 8 : 4);
 
-      // Loop for last 3 months
+      // Seed inventory items for consumables table reference
+      const { data: invItems } = await supabase.from('inventory_items').select('id, type');
+      const btpId = invItems?.find(i => i.type === 'BTP')?.id;
+      const btagId = invItems?.find(i => i.type === 'BTAG')?.id;
+
       for (let i = 0; i < 3; i++) {
         const d = new Date();
         d.setMonth(d.getMonth() - i);
@@ -88,8 +90,7 @@ const seedDemoData = async () => {
           desk_count: desks,
           consumables_usage: {
             "Thermal Bag Tags": { usage: Math.floor(varPax * 0.7), limit: 20000, trend: i === 0 ? '+5%' : '+1%', category: 'Inventory' },
-            "Boarding Passes": { usage: Math.floor(varPax * 0.4), limit: 15000, trend: i === 0 ? '-2%' : '0%', category: 'Inventory' },
-            "Lounge Vouchers": { usage: airline.iata_code === 'KU' ? 850 : 320, limit: 1000, trend: '0%', category: 'VIP' }
+            "Boarding Passes": { usage: Math.floor(varPax * 0.4), limit: 15000, trend: i === 0 ? '-2%' : '0%', category: 'Inventory' }
           }
         };
 
@@ -97,6 +98,14 @@ const seedDemoData = async () => {
             await supabase.from('usage_metrics').insert(payload);
         } else {
             await supabase.from('usage_metrics').update(payload).eq('id', existingUsage.id);
+        }
+
+        // Also seed raw consumables_usage table for the dashboard chart
+        if (btpId && btagId) {
+          await supabase.from('consumables_usage').insert([
+            { airline_id: airlineId, item_id: btpId, quantity: Math.floor(varPax * 1.05), usage_date: monthVar },
+            { airline_id: airlineId, item_id: btagId, quantity: Math.floor(varPax * 1.4), usage_date: monthVar }
+          ]);
         }
       }
     }

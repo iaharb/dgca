@@ -414,17 +414,22 @@ const InvoiceModal: React.FC<ModalProps> = ({ invoice, userType, processing, onC
   const [reason,     setReason]     = useState('');
   const isDGCA = userType === 'dgca';
 
+  const paxCount  = Number(invoice.pax_count || 0);
+  const deskCount = Number(invoice.desk_count || 0);
+  const snaPen    = Number(invoice.sna_deductions_kd || 0);
+  const lateFee   = Number(invoice.late_fees_kd || 0);
+
   const lines = [
-    { label: `Passenger Charges  (${Number(invoice.pax_count).toLocaleString()} PAX × KD ${(2 * USD_TO_KD).toFixed(3)})`,
-      amount: +invoice.pax_count * 2 * USD_TO_KD, type: 'credit' as const },
-    { label: `Check-in Desk Charges  (${invoice.desk_count} desks × KD ${(150 * USD_TO_KD).toFixed(3)})`,
-      amount: +invoice.desk_count * 150 * USD_TO_KD, type: 'credit' as const },
-    ...( +invoice.sna_deductions_kd > 0
+    { label: `Passenger Charges  (${paxCount.toLocaleString()} PAX × KD ${(2 * USD_TO_KD).toFixed(3)})`,
+      amount: paxCount * 2 * USD_TO_KD, type: 'credit' as const },
+    { label: `Check-in Desk Charges  (${deskCount} desks × KD ${(150 * USD_TO_KD).toFixed(3)})`,
+      amount: deskCount * 150 * USD_TO_KD, type: 'credit' as const },
+    ...( snaPen > 0
       ? [{ label: `SNA Penalty Deduction — Ops Partner Liability  (Annex 10 § 7.4.2)`,
-           amount: -+invoice.sna_deductions_kd, type: 'debit' as const }] : []),
-    ...( +invoice.late_fees_kd > 0
-      ? [{ label: `Late Payment Penalty  (${Math.round(+invoice.late_fees_kd / 1000)} days × KD 1,000)  (Annex 10 § 8.3)`,
-           amount: +invoice.late_fees_kd, type: 'fee' as const }] : []),
+           amount: -snaPen, type: 'debit' as const }] : []),
+    ...( lateFee > 0
+      ? [{ label: `Late Payment Penalty  (${Math.round(lateFee / 1000)} days × KD 1,000)  (Annex 10 § 8.3)`,
+           amount: lateFee, type: 'fee' as const }] : []),
   ];
 
   const typeColor = { credit:'text-slate-700', debit:'text-red-600', fee:'text-orange-600' };
@@ -444,7 +449,7 @@ const InvoiceModal: React.FC<ModalProps> = ({ invoice, userType, processing, onC
               <FileText className="w-4 h-4 text-blue-600" />
               <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Tax Invoice • DGCA Kuwait</span>
             </div>
-            <h3 className="text-2xl font-black text-slate-900">{invoice.carriers?.name}</h3>
+            <h3 className="text-2xl font-black text-slate-900">{invoice.carriers?.name || 'Carrier Metadata Pending'}</h3>
             <p className="text-sm font-bold text-slate-500 mt-0.5">{periodLabel(invoice.period_month)} — Service Period</p>
           </div>
           <div className="flex items-center gap-3">
