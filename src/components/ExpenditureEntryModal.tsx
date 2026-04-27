@@ -102,9 +102,9 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
           description: '',
         });
       }, 1500);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Error saving expenditure. Please try again.');
+      alert(`Error saving expenditure: ${err.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

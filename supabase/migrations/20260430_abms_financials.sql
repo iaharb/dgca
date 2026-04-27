@@ -1,9 +1,9 @@
--- ABMS Project Financial Management Schema
--- Handles Project Expenditures (Burn) and Revenue/Penalty Tracking (Earn)
+-- 0. Ensure extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 1. Project Expenditures Ledger
 CREATE TABLE IF NOT EXISTS abms_expenditures (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   category TEXT NOT NULL, -- 'Hardware CAPEX', 'Logistics', 'Resources', 'Fixed Costs', 'Advanced Payments'
   item_name TEXT NOT NULL,
   amount_usd DECIMAL(15,2) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS abms_expenditures (
 -- 2. Revenue & Penalty Tracker
 -- Aggregates monthly revenue streams based on the 35/65 split formula
 CREATE TABLE IF NOT EXISTS abms_revenue_summary (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   period_month DATE NOT NULL UNIQUE,
   
   -- Passenger breakdown for pricing logic
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS abms_revenue_summary (
 -- 3. Risk Impact Register
 -- Used for the Risk Impact Overlay on the Break-Even dashboard
 CREATE TABLE IF NOT EXISTS abms_risk_impacts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   risk_code TEXT UNIQUE, -- e.g., 'R-001' (Hardware Delivery), 'R-002' (VPN Readiness)
   title TEXT NOT NULL,
   probability DECIMAL(3,2), -- 0.0 to 1.0
