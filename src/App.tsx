@@ -21,6 +21,7 @@ import { OnboardingPipelineView } from './components/OnboardingPipelineView';
 import { CarrierWorkflowView } from './components/CarrierWorkflowView';
 import { SignaturePortal } from './components/SignaturePortal';
 import { EfficiencyMetrics } from './components/EfficiencyMetrics';
+import { ProjectFinancialsView } from './components/ProjectFinancialsView';
 import { NotificationBell } from './components/NotificationBell';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -51,7 +52,7 @@ import { supabase } from './lib/supabase';
 
 function App() {
   // ── Hash-based routing helpers ────────────────────────────────────────────
-  const VALID_TABS = ['dashboard','financial','efficiency','airlines','agreements','invoicing','payments','consumables','onboarding','simulation','analytics','manual'];
+  const VALID_TABS = ['dashboard','financial','abms_burn','efficiency','airlines','agreements','invoicing','payments','consumables','onboarding','simulation','analytics','manual'];
   const hashToTab = () => {
     const h = window.location.hash.replace('#', '');
     return VALID_TABS.includes(h) ? h : 'dashboard';
@@ -118,7 +119,8 @@ function App() {
 
   const menuItems = [
     { id: 'dashboard',  icon: LayoutDashboard, label: 'Pipeline Board',  roles: ['dgca', 'carrier', 'operations_partner'] },
-    { id: 'financial',  icon: BarChart3,        label: 'Financial Health', roles: ['dgca', 'carrier', 'operations_partner'] },
+    { id: 'abms_burn',  icon: TrendingUp,       label: 'Project ROI',     roles: ['dgca', 'operations_partner'] },
+    { id: 'financial',  icon: BarChart3,        label: 'Carrier Revenue', roles: ['dgca', 'carrier', 'operations_partner'] },
     { id: 'efficiency', icon: Zap,               label: 'Operational Efficiency', roles: ['dgca', 'carrier', 'operations_partner'] },
     { id: 'airlines',   icon: Users,            label: 'Directory',        roles: ['dgca', 'operations_partner'] },
     { id: 'agreements', icon: FileText,          label: 'Ledger',           roles: ['dgca', 'carrier', 'operations_partner'] },
@@ -263,6 +265,7 @@ function App() {
                     )}
                   </div>
                 )}
+               {activeTab === 'abms_burn'  && <ProjectFinancialsView />}
                {activeTab === 'financial'  && <FinancialMap   userType={profile?.role} airlineCode={profile?.airline_code} />}
                {activeTab === 'efficiency' && <EfficiencyMetrics airlineCode={profile?.airline_code} />}
                {activeTab === 'airlines'   && (profile?.role === 'dgca' || profile?.role === 'operations_partner') && <AirlinesView />}
