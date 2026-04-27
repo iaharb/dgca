@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Plus, Calculator, FileText, 
   Users, HardDrive, Truck, Shield, DollarSign,
-  RefreshCw, CheckCircle, AlertCircle
+  RefreshCw, CheckCircle, AlertCircle, Upload
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -24,7 +24,16 @@ const CATEGORIES = [
   { id: 'Concession Fee Guarantee', icon: FileText, color: 'text-rose-500', bg: 'bg-rose-50' },
 ];
 
-const DOC_TYPES = ['Purchase Order', 'Delivery Order', 'Invoice', 'Timesheet', 'Contract Item'];
+const DOC_TYPES = [
+  'Purchase Order', 
+  'Delivery Order', 
+  'Invoice', 
+  'Timesheet', 
+  'Contract Item',
+  'Bank Guarantee Facilities',
+  'Insurance Policies',
+  'Concession Fee Guarantee'
+];
 
 export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
@@ -71,6 +80,8 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
         throw new Error('Invalid amount values. Please enter valid numbers.');
       }
 
+      console.log('Inserting expenditure:', form);
+
       const { error } = await supabase.from('abms_expenditures').insert([{
         item_name: form.item_name,
         category: form.category,
@@ -84,7 +95,10 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
         status: 'budgeted'
       }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase Error:', error);
+        throw error;
+      }
       
       setSuccess(true);
       setTimeout(() => {
@@ -104,7 +118,7 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
         });
       }, 1500);
     } catch (err: any) {
-      console.error(err);
+      console.error('Final Catch Error:', err);
       alert(`Error saving expenditure: ${err.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
@@ -136,29 +150,29 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
                   <div className="p-1.5 bg-blue-600 rounded-lg">
                     <Plus className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">New Project Burn Entry</span>
+                  <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Project Expenditure Log</span>
                 </div>
-                <h3 className="text-2xl font-black text-slate-900">Log Expenditure</h3>
-                <p className="text-sm font-medium text-slate-500 mt-1">Record POs, Deliveries, and Resource Utilization</p>
+                <h3 className="text-2xl font-black text-slate-900">Record Burn Item</h3>
+                <p className="text-sm font-medium text-slate-500 mt-1">Audit-ready financial logging for ABMS Implementation</p>
               </div>
               <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-2xl transition-all">
                 <X className="w-6 h-6 text-slate-400" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
+            <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
               {success ? (
                 <div className="py-12 flex flex-col items-center justify-center text-center">
                   <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
                     <CheckCircle className="w-10 h-10 text-emerald-600" />
                   </div>
                   <h4 className="text-xl font-black text-slate-900">Expenditure Logged</h4>
-                  <p className="text-slate-500 font-medium">The financial model is being recalculated...</p>
+                  <p className="text-slate-500 font-medium">Re-calculating project ROI intersection...</p>
                 </div>
               ) : (
                 <>
                   {/* Category Grid */}
-                  <div className="grid grid-cols-5 gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     {CATEGORIES.map(cat => (
                       <button
                         key={cat.id}
@@ -170,9 +184,9 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
                             : 'border-slate-100 bg-white hover:border-slate-300'
                         }`}
                       >
-                        <cat.icon className={`w-6 h-6 mb-2 ${form.category === cat.id ? cat.color : 'text-slate-400'}`} />
+                        <cat.icon className={`w-5 h-5 mb-2 ${form.category === cat.id ? cat.color : 'text-slate-400'}`} />
                         <span className={`text-[8px] font-black uppercase text-center leading-tight ${form.category === cat.id ? 'text-blue-700' : 'text-slate-500'}`}>
-                          {cat.id.replace(' ', '\n')}
+                          {cat.id}
                         </span>
                       </button>
                     ))}
@@ -181,22 +195,11 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Item Description</label>
-                      <input 
-                        required
-                        type="text" 
-                        value={form.item_name}
-                        onChange={e => setForm(f => ({ ...f, item_name: e.target.value }))}
-                        placeholder="e.g., Sabhan Core Switch Cluster"
-                        className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all"
-                      />
+                      <input required type="text" value={form.item_name} onChange={e => setForm(f => ({ ...f, item_name: e.target.value }))} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Document Type</label>
-                      <select 
-                        value={form.document_type}
-                        onChange={e => setForm(f => ({ ...f, document_type: e.target.value }))}
-                        className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none"
-                      >
+                      <select value={form.document_type} onChange={e => setForm(f => ({ ...f, document_type: e.target.value }))} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none">
                         {DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
@@ -207,30 +210,14 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Amount (USD)</label>
                       <div className="relative">
                         <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input 
-                          required
-                          type="number" 
-                          step="0.01"
-                          value={form.amount_usd}
-                          onChange={e => handleUsdChange(e.target.value)}
-                          placeholder="0.00"
-                          className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all"
-                        />
+                        <input required type="number" step="0.01" value={form.amount_usd} onChange={e => handleUsdChange(e.target.value)} className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 text-blue-600">Amount (KD Equivalent)</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Amount (KD)</label>
                       <div className="relative">
                         <Calculator className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400" />
-                        <input 
-                          required
-                          type="number" 
-                          step="0.001"
-                          value={form.amount_kd}
-                          onChange={e => handleKdChange(e.target.value)}
-                          placeholder="0.000"
-                          className="w-full pl-10 pr-4 py-3.5 bg-blue-50 border border-blue-200 rounded-2xl text-sm font-black text-blue-700 focus:outline-none focus:border-blue-500 transition-all"
-                        />
+                        <input required type="number" step="0.001" value={form.amount_kd} onChange={e => handleKdChange(e.target.value)} className="w-full pl-10 pr-4 py-3.5 bg-blue-50 border border-blue-200 rounded-2xl text-sm font-black text-blue-700 focus:outline-none focus:border-blue-500 transition-all" />
                       </div>
                     </div>
                   </div>
@@ -238,65 +225,27 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reference No.</label>
-                      <input 
-                        type="text" 
-                        value={form.reference_no}
-                        onChange={e => setForm(f => ({ ...f, reference_no: e.target.value }))}
-                        placeholder="PO-2026-KWI-001"
-                        className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all"
-                      />
+                      <input type="text" value={form.reference_no} onChange={e => setForm(f => ({ ...f, reference_no: e.target.value }))} placeholder="REF-2026-X" className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
                     </div>
                     <div className="space-y-1.5">
-                      {form.category === 'Resources' ? (
-                        <>
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Man-Days Expended</label>
-                          <input 
-                            required
-                            type="number" 
-                            step="0.5"
-                            value={form.man_days}
-                            onChange={e => setForm(f => ({ ...f, man_days: e.target.value }))}
-                            placeholder="0.0"
-                            className="w-full px-4 py-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-sm font-bold text-emerald-700 focus:outline-none focus:border-emerald-500 transition-all"
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date Incurred</label>
-                          <input 
-                            required
-                            type="date" 
-                            value={form.date_incurred}
-                            onChange={e => setForm(f => ({ ...f, date_incurred: e.target.value }))}
-                            className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all"
-                          />
-                        </>
-                      )}
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date Incurred</label>
+                      <input required type="date" value={form.date_incurred} onChange={e => setForm(f => ({ ...f, date_incurred: e.target.value }))} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
                     </div>
                   </div>
 
-                  <div className="pt-4 space-y-6">
-                    {/* Document Upload Section */}
-                    <div className="p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[24px] hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group">
-                       <input type="file" className="hidden" id="doc-upload" />
-                       <label htmlFor="doc-upload" className="cursor-pointer flex flex-col items-center">
-                          <Upload className="w-8 h-8 text-slate-400 group-hover:text-blue-500 mb-2 transition-all" />
-                          <p className="text-sm font-black text-slate-900">Upload Scanned Document</p>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">PDF, PNG or JPG (Max 10MB)</p>
-                       </label>
-                    </div>
-
-                    <button 
-                      disabled={loading}
-                      className="w-full py-5 bg-slate-900 hover:bg-black text-white rounded-3xl font-black text-sm uppercase tracking-widest shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 transition-all disabled:opacity-50"
-                    >
-                      {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
-                      Commit Expenditure to Ledger
-                    </button>
-                    <p className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4">
-                      This action will update the break-even projection for all stakeholders
-                    </p>
+                  <div className="p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[24px] hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group">
+                     <input type="file" className="hidden" id="doc-upload" />
+                     <label htmlFor="doc-upload" className="cursor-pointer flex flex-col items-center">
+                        <Upload className="w-8 h-8 text-slate-400 group-hover:text-blue-500 mb-2 transition-all" />
+                        <p className="text-sm font-black text-slate-900">Upload Scanned Document</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">PDF or Image (Max 10MB)</p>
+                     </label>
                   </div>
+
+                  <button disabled={loading} className="w-full py-5 bg-slate-900 hover:bg-black text-white rounded-3xl font-black text-sm uppercase tracking-widest shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 transition-all disabled:opacity-50">
+                    {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                    Commit to Project Ledger
+                  </button>
                 </>
               )}
             </form>
