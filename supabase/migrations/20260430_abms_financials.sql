@@ -12,10 +12,12 @@ CREATE TABLE IF NOT EXISTS abms_expenditures (
   status TEXT DEFAULT 'pending', -- 'pending', 'paid', 'budgeted'
   description TEXT,
   reference_no TEXT, -- e.g., BOQ Item ID or Invoice #
-  document_type TEXT, -- 'PO', 'DO', 'Invoice', 'Timesheet'
-  man_days DECIMAL(10,2), -- Only for 'Resources' category
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Ensure columns exist if table was created previously without them
+ALTER TABLE abms_expenditures ADD COLUMN IF NOT EXISTS document_type TEXT;
+ALTER TABLE abms_expenditures ADD COLUMN IF NOT EXISTS man_days DECIMAL(10,2);
 
 -- 2. Revenue & Penalty Tracker
 -- Aggregates monthly revenue streams based on the 35/65 split formula

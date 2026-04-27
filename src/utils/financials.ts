@@ -21,6 +21,16 @@ export const PASSENGER_FEES_USD = {
   transit_no_entry: 0.0,
 };
 
+// Project Parameters for Financial Module
+export const ANNUAL_EXPECTED_PAX = 15000000;
+export const ANNUAL_TRANSIT_PAX = 3000000;
+export const RISK_FACTOR_DEFAULT = 0.25;
+export const SYSTEM_PENALTY_RATE = 0.10;
+export const PROJECT_START_DATE = new Date('2026-05-01');
+export const IMPLEMENTATION_WEEKS = 40;
+export const GO_LIVE_WEEK = 50;
+
+
 /**
  * Calculates monthly net revenue distribution based on passenger counts, 
  * consumables, and liquidated damages (penalties).
