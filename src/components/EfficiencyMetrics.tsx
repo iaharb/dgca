@@ -238,7 +238,7 @@ export const EfficiencyMetrics: React.FC<{ airlineCode?: string }> = ({ airlineC
               </div>
            </div>
 
-           <div className="flex-1 w-full">
+           <div className="h-[350px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                  <AreaChart data={delayHistory}>
                     <defs>

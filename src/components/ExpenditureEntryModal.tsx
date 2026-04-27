@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Plus, Calculator, FileText, 
-  Users, HardDrive, Truck, Shield, 
+  Users, HardDrive, Truck, Shield, DollarSign,
   RefreshCw, CheckCircle, AlertCircle
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
