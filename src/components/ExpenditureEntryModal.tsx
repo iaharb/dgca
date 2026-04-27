@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Plus, Calculator, FileText, 
   Users, HardDrive, Truck, Shield, 
-  Loader2, CheckCircle, AlertCircle
+  RefreshCw, CheckCircle, AlertCircle
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -272,7 +272,7 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
                       disabled={loading}
                       className="w-full py-5 bg-slate-900 hover:bg-black text-white rounded-3xl font-black text-sm uppercase tracking-widest shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 transition-all disabled:opacity-50"
                     >
-                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                      {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
                       Commit Expenditure to Ledger
                     </button>
                     <p className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4">

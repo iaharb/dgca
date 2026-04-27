@@ -11,7 +11,7 @@ import {
   Activity,
   ShieldAlert,
   ChevronRight,
-  Loader2
+  RefreshCw
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -136,7 +136,7 @@ export const EfficiencyMetrics: React.FC<{ airlineCode?: string }> = ({ airlineC
 
   if (loading) return (
     <div className="h-64 flex flex-col items-center justify-center gap-4 text-slate-400">
-      <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
       <span className="text-[10px] font-black uppercase tracking-widest">Analyzing Flight Efficiency...</span>
     </div>
   );

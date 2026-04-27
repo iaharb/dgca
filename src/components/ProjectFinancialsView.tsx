@@ -4,7 +4,7 @@ import {
   TrendingUp, TrendingDown, AlertTriangle, Clock, 
   DollarSign, Activity, Calendar, Shield, 
   ArrowUpRight, Info, HardDrive, Network, Truck,
-  Plus, Search, FileSpreadsheet, Loader2
+  Plus, Search, FileSpreadsheet, RefreshCw
 } from 'lucide-react';
 import { ExpenditureEntryModal } from './ExpenditureEntryModal';
 import { supabase } from '../lib/supabase';
@@ -351,9 +351,6 @@ export const ProjectFinancialsView: React.FC = () => {
         </div>
       </div>
 
-        </div>
-      </div>
-
       {/* Expenditure Ledger Table */}
       <div className="bg-slate-900/50 border border-slate-800 rounded-[32px] overflow-hidden">
         <div className="p-8 border-b border-slate-800 flex items-center justify-between bg-slate-900/30">
@@ -389,7 +386,7 @@ export const ProjectFinancialsView: React.FC = () => {
               {loading ? (
                 <tr>
                   <td colSpan={7} className="px-8 py-12 text-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-2" />
+                    <RefreshCw className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-2" />
                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Loading Ledger...</span>
                   </td>
                 </tr>
