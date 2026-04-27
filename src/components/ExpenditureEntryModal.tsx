@@ -17,10 +17,11 @@ interface Props {
 
 const CATEGORIES = [
   { id: 'Hardware CAPEX', icon: HardDrive, color: 'text-blue-500', bg: 'bg-blue-50' },
-  { id: 'Logistics', icon: Truck, color: 'text-orange-500', bg: 'bg-orange-50' },
   { id: 'Resources', icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50' },
   { id: 'Fixed Costs', icon: Shield, color: 'text-purple-500', bg: 'bg-purple-50' },
-  { id: 'Advanced Payments', icon: FileText, color: 'text-slate-500', bg: 'bg-slate-50' },
+  { id: 'Bank Guarantee Facilities', icon: DollarSign, color: 'text-amber-600', bg: 'bg-amber-50' },
+  { id: 'Insurance Policies', icon: Shield, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+  { id: 'Concession Fee Guarantee', icon: FileText, color: 'text-rose-500', bg: 'bg-rose-50' },
 ];
 
 const DOC_TYPES = ['Purchase Order', 'Delivery Order', 'Invoice', 'Timesheet', 'Contract Item'];
@@ -274,7 +275,17 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
                     </div>
                   </div>
 
-                  <div className="pt-4">
+                  <div className="pt-4 space-y-6">
+                    {/* Document Upload Section */}
+                    <div className="p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[24px] hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group">
+                       <input type="file" className="hidden" id="doc-upload" />
+                       <label htmlFor="doc-upload" className="cursor-pointer flex flex-col items-center">
+                          <Upload className="w-8 h-8 text-slate-400 group-hover:text-blue-500 mb-2 transition-all" />
+                          <p className="text-sm font-black text-slate-900">Upload Scanned Document</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">PDF, PNG or JPG (Max 10MB)</p>
+                       </label>
+                    </div>
+
                     <button 
                       disabled={loading}
                       className="w-full py-5 bg-slate-900 hover:bg-black text-white rounded-3xl font-black text-sm uppercase tracking-widest shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 transition-all disabled:opacity-50"

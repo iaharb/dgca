@@ -24,8 +24,26 @@ export const PASSENGER_FEES_USD = {
 // Project Parameters for Financial Module
 export const ANNUAL_EXPECTED_PAX = 15000000;
 export const ANNUAL_TRANSIT_PAX = 3000000;
+export const TRANSIT_TYPES_DEFAULT = {
+  plane_to_plane: 0.60, // 60% of 3M
+  pax_no_plane: 0.30,   // 30% of 3M
+  no_entry: 0.10        // 10% of 3M
+};
+
 export const RISK_FACTOR_DEFAULT = 0.25;
 export const SYSTEM_PENALTY_RATE = 0.10;
+
+export const EXPENSE_CATEGORIES = [
+  'Hardware CAPEX',
+  'Logistics',
+  'Resources',
+  'Fixed Costs',
+  'Advanced Payments',
+  'Bank Guarantee Facilities',
+  'Insurance Policies',
+  'Concession Fee Guarantee'
+];
+
 export const PROJECT_START_DATE = new Date('2026-05-01');
 export const IMPLEMENTATION_WEEKS = 40;
 export const GO_LIVE_WEEK = 50;
