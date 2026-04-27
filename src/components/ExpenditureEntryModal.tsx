@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Plus, Calculator, FileText, 
-  Users, HardDrive, Truck, Shield, DollarSign,
-  RefreshCw, CheckCircle, AlertCircle, Upload
+  Users, HardDrive, Shield, DollarSign,
+  RefreshCw, CheckCircle, Upload, Save
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
@@ -13,6 +13,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  editData?: any;
 }
 
 const CATEGORIES = [
@@ -35,7 +36,7 @@ const DOC_TYPES = [
   'Concession Fee Guarantee'
 ];
 
-export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
+export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, editData }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [form, setForm] = useState({
@@ -49,6 +50,34 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
     man_days: '',
     description: '',
   });
+
+  useEffect(() => {
+    if (editData) {
+      setForm({
+        item_name: editData.item_name || '',
+        category: editData.category || 'Hardware CAPEX',
+        document_type: editData.document_type || 'Purchase Order',
+        amount_usd: editData.amount_usd?.toString() || '',
+        amount_kd: editData.amount_kd?.toString() || '',
+        date_incurred: editData.date_incurred || '',
+        reference_no: editData.reference_no || '',
+        man_days: editData.man_days?.toString() || '',
+        description: editData.description || '',
+      });
+    } else {
+      setForm({
+        item_name: '',
+        category: 'Hardware CAPEX',
+        document_type: 'Purchase Order',
+        amount_usd: '',
+        amount_kd: '',
+        date_incurred: new Date().toISOString().split('T')[0],
+        reference_no: '',
+        man_days: '',
+        description: '',
+      });
+    }
+  }, [editData, isOpen]);
 
   const handleUsdChange = (val: string) => {
     const usd = parseFloat(val) || 0;
@@ -73,53 +102,36 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
     setLoading(true);
     
     try {
-      const amountUsd = parseFloat(form.amount_usd);
-      const amountKd = parseFloat(form.amount_kd);
-
-      if (isNaN(amountUsd) || isNaN(amountKd)) {
-        throw new Error('Invalid amount values. Please enter valid numbers.');
-      }
-
-      console.log('Inserting expenditure:', form);
-
-      const { error } = await supabase.from('abms_expenditures').insert([{
+      const payload = {
         item_name: form.item_name,
         category: form.category,
         document_type: form.document_type,
-        amount_usd: amountUsd,
-        amount_kd: amountKd,
+        amount_usd: parseFloat(form.amount_usd),
+        amount_kd: parseFloat(form.amount_kd),
         date_incurred: form.date_incurred,
         reference_no: form.reference_no,
         man_days: form.category === 'Resources' && form.man_days ? parseFloat(form.man_days) : null,
         description: form.description,
-        status: 'budgeted'
-      }]);
+        status: editData ? editData.status : 'budgeted'
+      };
 
-      if (error) {
-        console.error('Supabase Error:', error);
-        throw error;
+      let result;
+      if (editData) {
+        result = await supabase.from('abms_expenditures').update(payload).eq('id', editData.id);
+      } else {
+        result = await supabase.from('abms_expenditures').insert([payload]);
       }
+
+      if (result.error) throw result.error;
       
       setSuccess(true);
       setTimeout(() => {
         onSuccess();
         onClose();
         setSuccess(false);
-        setForm({
-          item_name: '',
-          category: 'Hardware CAPEX',
-          document_type: 'Purchase Order',
-          amount_usd: '',
-          amount_kd: '',
-          date_incurred: new Date().toISOString().split('T')[0],
-          reference_no: '',
-          man_days: '',
-          description: '',
-        });
-      }, 1500);
+      }, 1000);
     } catch (err: any) {
-      console.error('Final Catch Error:', err);
-      alert(`Error saving expenditure: ${err.message || 'Unknown error'}`);
+      alert(`Error saving: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -128,123 +140,52 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 md:p-6">
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
-            onClick={onClose} 
-            className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" 
-          />
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 20 }} 
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
-          >
-            {/* Header */}
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" />
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden">
             <div className="p-8 bg-slate-50 border-b border-slate-100 flex items-start justify-between">
               <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="p-1.5 bg-blue-600 rounded-lg">
-                    <Plus className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Project Expenditure Log</span>
-                </div>
-                <h3 className="text-2xl font-black text-slate-900">Record Burn Item</h3>
-                <p className="text-sm font-medium text-slate-500 mt-1">Audit-ready financial logging for ABMS Implementation</p>
+                <h3 className="text-2xl font-black text-slate-900">{editData ? 'Update Transaction' : 'Record Burn Item'}</h3>
+                <p className="text-sm font-medium text-slate-500 mt-1">{editData ? 'Modifying existing audit record' : 'Audit-ready financial logging for ABMS'}</p>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-2xl transition-all">
-                <X className="w-6 h-6 text-slate-400" />
-              </button>
+              <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-2xl transition-all"><X className="w-6 h-6 text-slate-400" /></button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
+            <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
               {success ? (
-                <div className="py-12 flex flex-col items-center justify-center text-center">
-                  <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
-                    <CheckCircle className="w-10 h-10 text-emerald-600" />
-                  </div>
-                  <h4 className="text-xl font-black text-slate-900">Expenditure Logged</h4>
-                  <p className="text-slate-500 font-medium">Re-calculating project ROI intersection...</p>
+                <div className="py-12 text-center">
+                  <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                  <h4 className="text-xl font-black text-slate-900">Success</h4>
                 </div>
               ) : (
                 <>
-                  {/* Category Grid */}
                   <div className="grid grid-cols-3 gap-3">
                     {CATEGORIES.map(cat => (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => setForm(f => ({ ...f, category: cat.id }))}
-                        className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all ${
-                          form.category === cat.id 
-                            ? `border-blue-500 ${cat.bg} shadow-sm ring-2 ring-blue-500/20` 
-                            : 'border-slate-100 bg-white hover:border-slate-300'
-                        }`}
-                      >
+                      <button key={cat.id} type="button" onClick={() => setForm(f => ({ ...f, category: cat.id }))} className={`flex flex-col items-center p-4 rounded-2xl border transition-all ${form.category === cat.id ? `border-blue-500 ${cat.bg} ring-2 ring-blue-500/10` : 'border-slate-100 bg-white hover:border-slate-200'}`}>
                         <cat.icon className={`w-5 h-5 mb-2 ${form.category === cat.id ? cat.color : 'text-slate-400'}`} />
-                        <span className={`text-[8px] font-black uppercase text-center leading-tight ${form.category === cat.id ? 'text-blue-700' : 'text-slate-500'}`}>
-                          {cat.id}
-                        </span>
+                        <span className="text-[8px] font-black uppercase text-center">{cat.id}</span>
                       </button>
                     ))}
                   </div>
 
                   <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Item Description</label>
-                      <input required type="text" value={form.item_name} onChange={e => setForm(f => ({ ...f, item_name: e.target.value }))} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Document Type</label>
-                      <select value={form.document_type} onChange={e => setForm(f => ({ ...f, document_type: e.target.value }))} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all appearance-none">
-                        {DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                      </select>
-                    </div>
+                    <div className="space-y-1.5"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Item Description</label><input required type="text" value={form.item_name} onChange={e => setForm(f => ({ ...f, item_name: e.target.value }))} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" /></div>
+                    <div className="space-y-1.5"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Document Type</label><select value={form.document_type} onChange={e => setForm(f => ({ ...f, document_type: e.target.value }))} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold appearance-none">{DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Amount (USD)</label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input required type="number" step="0.01" value={form.amount_usd} onChange={e => handleUsdChange(e.target.value)} className="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-                      </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Amount (KD)</label>
-                      <div className="relative">
-                        <Calculator className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400" />
-                        <input required type="number" step="0.001" value={form.amount_kd} onChange={e => handleKdChange(e.target.value)} className="w-full pl-10 pr-4 py-3.5 bg-blue-50 border border-blue-200 rounded-2xl text-sm font-black text-blue-700 focus:outline-none focus:border-blue-500 transition-all" />
-                      </div>
-                    </div>
+                    <div className="space-y-1.5"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount (USD)</label><div className="relative"><DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" /><input required type="number" step="0.01" value={form.amount_usd} onChange={e => handleUsdChange(e.target.value)} className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" /></div></div>
+                    <div className="space-y-1.5"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount (KD)</label><div className="relative"><Calculator className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400" /><input required type="number" step="0.001" value={form.amount_kd} onChange={e => handleKdChange(e.target.value)} className="w-full pl-10 pr-4 py-3 bg-blue-50 border border-blue-200 rounded-xl text-sm font-black text-blue-700" /></div></div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reference No.</label>
-                      <input type="text" value={form.reference_no} onChange={e => setForm(f => ({ ...f, reference_no: e.target.value }))} placeholder="REF-2026-X" className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date Incurred</label>
-                      <input required type="date" value={form.date_incurred} onChange={e => setForm(f => ({ ...f, date_incurred: e.target.value }))} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-                    </div>
+                    <div className="space-y-1.5"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reference No.</label><input type="text" value={form.reference_no} onChange={e => setForm(f => ({ ...f, reference_no: e.target.value }))} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" /></div>
+                    <div className="space-y-1.5"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</label><input required type="date" value={form.date_incurred} onChange={e => setForm(f => ({ ...f, date_incurred: e.target.value }))} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" /></div>
                   </div>
 
-                  <div className="p-6 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[24px] hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group">
-                     <input type="file" className="hidden" id="doc-upload" />
-                     <label htmlFor="doc-upload" className="cursor-pointer flex flex-col items-center">
-                        <Upload className="w-8 h-8 text-slate-400 group-hover:text-blue-500 mb-2 transition-all" />
-                        <p className="text-sm font-black text-slate-900">Upload Scanned Document</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">PDF or Image (Max 10MB)</p>
-                     </label>
-                  </div>
-
-                  <button disabled={loading} className="w-full py-5 bg-slate-900 hover:bg-black text-white rounded-3xl font-black text-sm uppercase tracking-widest shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 transition-all disabled:opacity-50">
-                    {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
-                    Commit to Project Ledger
+                  <button disabled={loading} className="w-full py-5 bg-slate-900 hover:bg-black text-white rounded-3xl font-black text-sm uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 transition-all">
+                    {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : editData ? <Save className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                    {editData ? 'Save Changes' : 'Commit to Ledger'}
                   </button>
                 </>
               )}

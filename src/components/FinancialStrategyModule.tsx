@@ -22,7 +22,9 @@ import {
   Download,
   Eye,
   PieChart as PieIcon,
-  RefreshCw
+  RefreshCw,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -58,6 +60,7 @@ export const FinancialStrategyModule: React.FC = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
   const [selectedFolder, setSelectedFolder] = useState('Purchase Order');
 
   const fetchExpenses = async () => {
@@ -80,6 +83,22 @@ export const FinancialStrategyModule: React.FC = () => {
   useEffect(() => {
     fetchExpenses();
   }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this transaction? This will impact ROI calculations.')) return;
+    
+    const { error } = await supabase.from('abms_expenditures').delete().eq('id', id);
+    if (error) {
+      alert(`Error deleting: ${error.message}`);
+    } else {
+      fetchExpenses();
+    }
+  };
+
+  const handleEdit = (item: any) => {
+    setEditingItem(item);
+    setIsModalOpen(true);
+  };
 
   const stats = useMemo(() => {
     const feeReg = 2.00;
@@ -316,7 +335,10 @@ export const FinancialStrategyModule: React.FC = () => {
                <Receipt size={24} className="text-blue-600" />
                <h3 className="text-xl font-black text-slate-900 tracking-tight">Project Burn Ledger</h3>
             </div>
-            <button onClick={() => setIsModalOpen(true)} className="bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-slate-950/10 flex items-center gap-2">
+            <button 
+              onClick={() => { setEditingItem(null); setIsModalOpen(true); }} 
+              className="bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-slate-950/10 flex items-center gap-2"
+            >
               <Plus size={16} /> Log Entry
             </button>
           </div>
@@ -328,11 +350,12 @@ export const FinancialStrategyModule: React.FC = () => {
                   <th className="px-8 py-5 text-left">Item Detail</th>
                   <th className="px-8 py-5 text-left">Category</th>
                   <th className="px-8 py-5 text-right">Amount (USD)</th>
+                  <th className="px-8 py-5 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {loading ? (
-                   <tr><td colSpan={4} className="px-8 py-10 text-center"><RefreshCw size={24} className="animate-spin mx-auto text-slate-300" /></td></tr>
+                   <tr><td colSpan={5} className="px-8 py-10 text-center"><RefreshCw size={24} className="animate-spin mx-auto text-slate-300" /></td></tr>
                 ) : expenses.map((exp) => (
                   <tr key={exp.id} className="hover:bg-slate-50/50 transition-colors group">
                     <td className="px-8 py-6 text-xs font-bold text-slate-500 whitespace-nowrap">{format(new Date(exp.date_incurred), 'MMM dd, yyyy')}</td>
@@ -346,6 +369,22 @@ export const FinancialStrategyModule: React.FC = () => {
                        <span className="px-3 py-1 bg-slate-100 rounded-xl text-[9px] font-black text-slate-500 uppercase tracking-widest border border-slate-200">{exp.category}</span>
                     </td>
                     <td className="px-8 py-6 text-right text-sm font-black text-slate-900">${Number(exp.amount_usd).toLocaleString()}</td>
+                    <td className="px-8 py-6">
+                       <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={() => handleEdit(exp)}
+                            className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all"
+                          >
+                             <Edit2 size={14} />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(exp.id)}
+                            className="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all"
+                          >
+                             <Trash2 size={14} />
+                          </button>
+                       </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -380,7 +419,10 @@ export const FinancialStrategyModule: React.FC = () => {
                          <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center"><FileText size={14} /></div>
                          <div className="min-w-0"><p className="text-[10px] font-black text-slate-900 truncate">{exp.reference_no}</p><p className="text-[8px] font-bold text-slate-400 uppercase truncate">{exp.item_name}</p></div>
                       </div>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"><button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-600"><Eye size={12} /></button><button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-600"><Download size={12} /></button></div>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button onClick={() => handleEdit(exp)} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-600"><Edit2 size={12} /></button>
+                         <button className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-600"><Download size={12} /></button>
+                      </div>
                    </div>
                  ))}
                  {expenses.filter(e => e.document_type === selectedFolder).length === 0 && <div className="py-10 text-center"><p className="text-xs font-bold text-slate-300">Empty directory</p></div>}
@@ -389,7 +431,12 @@ export const FinancialStrategyModule: React.FC = () => {
         </div>
       </div>
 
-      <ExpenditureEntryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={fetchExpenses} />
+      <ExpenditureEntryModal 
+        isOpen={isModalOpen} 
+        onClose={() => { setIsModalOpen(false); setEditingItem(null); }} 
+        onSuccess={fetchExpenses} 
+        editData={editingItem}
+      />
     </div>
   );
 };
