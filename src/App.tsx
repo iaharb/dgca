@@ -45,7 +45,8 @@ import {
   Banknote,
   Package,
   Zap,
-  Sparkles
+  Sparkles,
+  TrendingUp
 } from 'lucide-react';
 
 import { supabase } from './lib/supabase';
