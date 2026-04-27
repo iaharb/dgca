@@ -63,15 +63,22 @@ export const ExpenditureEntryModal: React.FC<Props> = ({ isOpen, onClose, onSucc
     setLoading(true);
     
     try {
+      const amountUsd = parseFloat(form.amount_usd);
+      const amountKd = parseFloat(form.amount_kd);
+
+      if (isNaN(amountUsd) || isNaN(amountKd)) {
+        throw new Error('Invalid amount values. Please enter valid numbers.');
+      }
+
       const { error } = await supabase.from('abms_expenditures').insert([{
         item_name: form.item_name,
         category: form.category,
         document_type: form.document_type,
-        amount_usd: parseFloat(form.amount_usd),
-        amount_kd: parseFloat(form.amount_kd),
+        amount_usd: amountUsd,
+        amount_kd: amountKd,
         date_incurred: form.date_incurred,
         reference_no: form.reference_no,
-        man_days: form.category === 'Resources' ? parseFloat(form.man_days) : null,
+        man_days: form.category === 'Resources' && form.man_days ? parseFloat(form.man_days) : null,
         description: form.description,
         status: 'budgeted'
       }]);

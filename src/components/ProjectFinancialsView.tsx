@@ -139,8 +139,10 @@ export const ProjectFinancialsView: React.FC = () => {
 
   const lucrativeWeek = financialData.find(d => d.isLucrative)?.week;
   const currentWeek = 18; // Mock current project week
-  const totalBurn = financialData[financialData.length - 1].burn;
-  const currentAccrual = financialData[currentWeek - 1]?.revenue || 0;
+  const lastDataPoint = financialData[financialData.length - 1];
+  const totalBurn = lastDataPoint ? lastDataPoint.burn : 0;
+  const currentPoint = financialData[currentWeek - 1];
+  const currentAccrual = currentPoint ? currentPoint.revenue : 0;
   
   const statusColor = currentAccrual > totalBurn ? 'text-emerald-500' : 'text-amber-500';
 

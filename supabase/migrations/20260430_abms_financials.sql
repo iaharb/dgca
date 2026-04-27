@@ -59,6 +59,28 @@ CREATE TABLE IF NOT EXISTS abms_risk_impacts (
 CREATE INDEX IF NOT EXISTS idx_abms_exp_date ON abms_expenditures(date_incurred);
 CREATE INDEX IF NOT EXISTS idx_abms_rev_month ON abms_revenue_summary(period_month);
 
+-- 4. Enable RLS and add policies
+ALTER TABLE abms_expenditures ENABLE ROW LEVEL SECURITY;
+ALTER TABLE abms_revenue_summary ENABLE ROW LEVEL SECURITY;
+ALTER TABLE abms_risk_impacts ENABLE ROW LEVEL SECURITY;
+
+DO $do$
+BEGIN
+  -- Expenditures
+  CREATE POLICY "Allow Auth All" ON abms_expenditures FOR ALL TO authenticated USING (true) WITH CHECK (true);
+  CREATE POLICY "Allow Public Select" ON abms_expenditures FOR SELECT TO anon USING (true);
+
+  -- Revenue Summary
+  CREATE POLICY "Allow Auth All" ON abms_revenue_summary FOR ALL TO authenticated USING (true) WITH CHECK (true);
+  CREATE POLICY "Allow Public Select" ON abms_revenue_summary FOR SELECT TO anon USING (true);
+
+  -- Risk Impacts
+  CREATE POLICY "Allow Auth All" ON abms_risk_impacts FOR ALL TO authenticated USING (true) WITH CHECK (true);
+  CREATE POLICY "Allow Public Select" ON abms_risk_impacts FOR SELECT TO anon USING (true);
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $do$;
+
 -- View for Cumulative Financials (Lucrative Status)
 CREATE OR REPLACE VIEW v_abms_lucrative_status AS
 WITH burn AS (
