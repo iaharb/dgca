@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS abms_expenditures (
   status TEXT DEFAULT 'pending', -- 'pending', 'paid', 'budgeted'
   description TEXT,
   reference_no TEXT, -- e.g., BOQ Item ID or Invoice #
+  document_type TEXT, -- 'PO', 'DO', 'Invoice', 'Timesheet'
+  man_days DECIMAL(10,2), -- Only for 'Resources' category
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

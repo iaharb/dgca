@@ -3,8 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, TrendingDown, AlertTriangle, Clock, 
   DollarSign, Activity, Calendar, Shield, 
-  ArrowUpRight, Info, HardDrive, Network, Truck
+  ArrowUpRight, Info, HardDrive, Network, Truck,
+  Plus, Search, FileSpreadsheet, Loader2
 } from 'lucide-react';
+import { ExpenditureEntryModal } from './ExpenditureEntryModal';
+import { supabase } from '../lib/supabase';
 import { 
   LineChart, Line, AreaChart, Area, XAxis, YAxis, 
   CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Label 
@@ -40,6 +43,7 @@ const IMPLEMENTATION_WEEKS = 24;
 const REVENUE_START_WEEK = 16;
 const AVG_MONTHLY_NET_PANWORLD = 125000; // Mock average monthly revenue for Panworld (35%)
 const WEEKLY_REVENUE = AVG_MONTHLY_NET_PANWORLD / 4;
+const PROJECT_START_DATE = new Date('2026-01-01'); // Project anchor date
 
 const INITIAL_EXPENDITURES: Expenditure[] = [
   { id: '1', category: 'Hardware CAPEX', item: 'Servers & Storage (Sabhan)', amount: 450000, week: 1 },
@@ -62,11 +66,28 @@ const INITIAL_RISKS: Risk[] = [
 
 export const ProjectFinancialsView: React.FC = () => {
   const [risks, setRisks] = useState<Risk[]>(INITIAL_RISKS);
+  const [expenditures, setExpenditures] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const [hoveredWeek, setHoveredWeek] = useState<number | null>(null);
 
   const toggleRisk = (id: string) => {
     setRisks(prev => prev.map(r => r.id === id ? { ...r, active: !r.active } : r));
   };
+
+  const fetchExpenditures = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('abms_expenditures')
+      .select('*')
+      .order('date_incurred', { ascending: false });
+    setExpenditures(data || []);
+    setLoading(false);
+  };
+
+  React.useEffect(() => {
+    fetchExpenditures();
+  }, []);
 
   // Calculate Financial Projections
   const financialData = useMemo(() => {
@@ -79,15 +100,21 @@ export const ProjectFinancialsView: React.FC = () => {
     const costImpact = activeRisks.reduce((sum, r) => sum + r.impactCost, 0);
     
     const adjustedRevenueStart = REVENUE_START_WEEK + delayWeeks;
-    const totalExpenditureBase = INITIAL_EXPENDITURES.reduce((sum, e) => sum + e.amount, 0);
-    const totalExpenditure = totalExpenditureBase + costImpact;
+    
+    // Map real expenditures to weeks
+    const realExpenditureMap: Record<number, number> = {};
+    expenditures.forEach(exp => {
+      const date = new Date(exp.date_incurred);
+      const week = Math.max(1, Math.floor((date.getTime() - PROJECT_START_DATE.getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1);
+      realExpenditureMap[week] = (realExpenditureMap[week] || 0) + Number(exp.amount_kd);
+    });
 
     // Project out for 104 weeks (2 years)
     for (let week = 1; week <= 104; week++) {
-      // Add burn for specific weeks
-      const weeklyBurn = INITIAL_EXPENDITURES
-        .filter(e => e.week === week)
-        .reduce((sum, e) => sum + e.amount, 0);
+      // Add burn from real data or fallback to initial plan if real data is empty
+      const weeklyBurn = expenditures.length > 0 
+        ? (realExpenditureMap[week] || 0)
+        : INITIAL_EXPENDITURES.filter(e => e.week === week).reduce((sum, e) => sum + e.amount, 0);
       
       cumulativeBurn += weeklyBurn;
       
@@ -108,7 +135,7 @@ export const ProjectFinancialsView: React.FC = () => {
       });
     }
     return data;
-  }, [risks]);
+  }, [risks, expenditures]);
 
   const lucrativeWeek = financialData.find(d => d.isLucrative)?.week;
   const currentWeek = 18; // Mock current project week
@@ -146,6 +173,12 @@ export const ProjectFinancialsView: React.FC = () => {
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Break-Even Projection</p>
             <p className="text-2xl font-black text-white tracking-tight">Week {lucrativeWeek || 'N/A'}</p>
           </div>
+          <button 
+            onClick={() => setIsEntryModalOpen(true)}
+            className="ml-4 h-12 px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Log Expenditure
+          </button>
         </div>
       </div>
 
@@ -317,6 +350,96 @@ export const ProjectFinancialsView: React.FC = () => {
           </div>
         </div>
       </div>
+
+        </div>
+      </div>
+
+      {/* Expenditure Ledger Table */}
+      <div className="bg-slate-900/50 border border-slate-800 rounded-[32px] overflow-hidden">
+        <div className="p-8 border-b border-slate-800 flex items-center justify-between bg-slate-900/30">
+          <div className="flex items-center gap-3">
+            <FileSpreadsheet className="w-5 h-5 text-blue-400" />
+            <h3 className="text-xl font-black text-white">Project Burn Ledger</h3>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+              <input 
+                type="text" 
+                placeholder="Search references..." 
+                className="bg-slate-950/50 border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-[10px] font-bold text-slate-300 outline-none focus:border-blue-500 transition-all w-64"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] bg-slate-950/50">
+                <th className="px-8 py-5">Date</th>
+                <th className="px-8 py-5">Item / Description</th>
+                <th className="px-8 py-5">Category</th>
+                <th className="px-8 py-5">Doc Type</th>
+                <th className="px-8 py-5">Ref No</th>
+                <th className="px-8 py-5 text-right">Amount (USD)</th>
+                <th className="px-8 py-5 text-right">Amount (KD)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800">
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="px-8 py-12 text-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-2" />
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Loading Ledger...</span>
+                  </td>
+                </tr>
+              ) : expenditures.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-8 py-12 text-center text-slate-500 text-sm font-medium italic">
+                    No expenditures logged yet.
+                  </td>
+                </tr>
+              ) : expenditures.map(exp => (
+                <tr key={exp.id} className="hover:bg-white/5 transition-colors group">
+                  <td className="px-8 py-5 text-xs font-bold text-slate-400 whitespace-nowrap">
+                    {new Date(exp.date_incurred).toLocaleDateString()}
+                  </td>
+                  <td className="px-8 py-5">
+                    <div className="text-sm font-black text-white">{exp.item_name}</div>
+                    <div className="text-[10px] text-slate-500 font-medium truncate max-w-xs">{exp.description}</div>
+                  </td>
+                  <td className="px-8 py-5">
+                    <span className="px-2 py-1 rounded-lg bg-slate-800 text-[9px] font-black text-slate-300 uppercase tracking-widest border border-slate-700">
+                      {exp.category}
+                    </span>
+                  </td>
+                  <td className="px-8 py-5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                      <span className="text-[10px] font-black text-slate-400 uppercase">{exp.document_type}</span>
+                    </div>
+                  </td>
+                  <td className="px-8 py-5 text-xs font-bold text-slate-300 font-mono">
+                    {exp.reference_no || '—'}
+                  </td>
+                  <td className="px-8 py-5 text-right text-sm font-black text-slate-300">
+                    ${exp.amount_usd.toLocaleString()}
+                  </td>
+                  <td className="px-8 py-5 text-right text-sm font-black text-blue-400">
+                    {exp.amount_kd.toLocaleString(undefined, { minimumFractionDigits: 3 })} KD
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <ExpenditureEntryModal 
+        isOpen={isEntryModalOpen} 
+        onClose={() => setIsEntryModalOpen(false)} 
+        onSuccess={fetchExpenditures} 
+      />
 
       {/* Logic Note / Legend */}
       <div className="bg-blue-500/5 border border-blue-500/10 rounded-2xl p-6 flex gap-4 items-start">

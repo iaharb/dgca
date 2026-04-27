@@ -10,7 +10,8 @@ import {
   Zap,
   Activity,
   ShieldAlert,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
 import { 
   LineChart, 
