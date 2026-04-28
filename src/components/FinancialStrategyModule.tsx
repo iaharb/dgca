@@ -255,10 +255,13 @@ export const FinancialStrategyModule: React.FC = () => {
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                 <XAxis dataKey="label" stroke="#94a3b8" fontSize={10} fontWeight="bold" interval={8} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={10} fontWeight="bold" tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ background: 'white', border: 'none', borderRadius: '20px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }} />
-                <Line type="monotone" dataKey="monthlyBurn" stroke="#ef4444" strokeWidth={5} dot={false} />
-                <Line type="monotone" dataKey="monthlyRevenue" stroke="#059669" strokeWidth={5} dot={false} />
+                <YAxis stroke="#94a3b8" fontSize={10} fontWeight="bold" tickFormatter={(v) => `$${(v/1000000).toFixed(2)}M`} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  formatter={(value: number) => [`$${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, '']}
+                  contentStyle={{ background: 'white', border: 'none', borderRadius: '20px', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }} 
+                />
+                <Line type="monotone" dataKey="monthlyBurn" name="Burn" stroke="#ef4444" strokeWidth={5} dot={false} />
+                <Line type="monotone" dataKey="monthlyRevenue" name="Revenue" stroke="#059669" strokeWidth={5} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -269,7 +272,12 @@ export const FinancialStrategyModule: React.FC = () => {
              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-6">Pax Composition</h3>
              <div className="h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart><Pie data={paxPieData} innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="value">{paxPieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />)}</Pie><Tooltip /></PieChart>
+                  <PieChart>
+                    <Pie data={paxPieData} innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="value">
+                      {paxPieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />)}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => [value.toLocaleString(), 'Passengers']} />
+                  </PieChart>
                 </ResponsiveContainer>
              </div>
           </div>
@@ -277,7 +285,13 @@ export const FinancialStrategyModule: React.FC = () => {
              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-6">Revenue Split (65/35)</h3>
              <div className="h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart><Pie data={sharePieData} innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="value">{sharePieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />)}</Pie><Tooltip /><Legend wrapperStyle={{ fontSize: '10px', fontWeight: 'bold' }} /></PieChart>
+                  <PieChart>
+                    <Pie data={sharePieData} innerRadius={60} outerRadius={85} paddingAngle={8} dataKey="value">
+                      {sharePieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />)}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => [`$${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, '']} />
+                    <Legend wrapperStyle={{ fontSize: '10px', fontWeight: 'bold' }} />
+                  </PieChart>
                 </ResponsiveContainer>
              </div>
           </div>
@@ -300,6 +314,7 @@ export const FinancialStrategyModule: React.FC = () => {
                   <th className="px-8 py-5 text-left">Detail</th>
                   <th className="px-8 py-5 text-left">Category</th>
                   <th className="px-8 py-5 text-right">Amount (USD)</th>
+                  <th className="px-8 py-5 text-right">Amount (KD)</th>
                   <th className="px-8 py-5 text-center">Actions</th>
                 </tr>
               </thead>
@@ -309,7 +324,8 @@ export const FinancialStrategyModule: React.FC = () => {
                     <td className="px-8 py-6 text-xs font-bold text-slate-500">{format(new Date(exp.date_incurred), 'MMM dd, yyyy')}</td>
                     <td className="px-8 py-6"><div className="text-sm font-black text-slate-900">{exp.item_name}</div><div className="text-[10px] text-blue-600 font-bold mt-1">{exp.reference_no}</div></td>
                     <td className="px-8 py-6"><span className="px-3 py-1 bg-slate-100 rounded-xl text-[9px] font-black text-slate-500 uppercase">{exp.category}</span></td>
-                    <td className="px-8 py-6 text-right text-sm font-black text-slate-900">${Number(exp.amount_usd).toLocaleString()}</td>
+                    <td className="px-8 py-6 text-right text-sm font-black text-slate-900">${Number(exp.amount_usd).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td className="px-8 py-6 text-right text-sm font-black text-blue-700">KD {Number(exp.amount_kd).toLocaleString('en-US', {minimumFractionDigits: 3, maximumFractionDigits: 3})}</td>
                     <td className="px-8 py-6"><div className="flex items-center justify-center gap-2"><button onClick={() => { setEditingItem(exp); setIsModalOpen(true); }} className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><Edit2 size={14} /></button><button onClick={() => { setDeletingId(exp.id); setDeleteModalOpen(true); }} className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-700 hover:text-white transition-all shadow-sm"><Trash2 size={14} /></button></div></td>
                   </tr>
                 ))}
